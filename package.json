@@ -7,15 +7,16 @@
     "packages/*"
   ],
   "scripts": {
+    "dev": "next dev --turbo -p 3001",
     "prebuild": "tsx scripts/generate-takumi-og.mts",
     "build": "next build && npx @vahor/next-broken-links",
     "build:static": "next build && npx @vahor/next-broken-links",
     "build:og": "tsx scripts/generate-takumi-og.mts",
-    "dev": "next dev --turbo -p 3001",
+    "postinstall": "fumadocs-mdx",
     "start": "next start",
     "serve": "serve out -p 8080",
-    "postinstall": "fumadocs-mdx",
-    "check-links": "node scripts/check-links.js"
+    "check-links": "node scripts/check-links.js",
+    "sync-skills": "node scripts/sync-skills.mjs"
   },
   "dependencies": {
     "@tetherto/docs-seo-next": "1.0.0",

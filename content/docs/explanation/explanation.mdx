@@ -1,0 +1,59 @@
+---
+title: Why DOCS is a template, not a SaaS
+description: Explains why DOCS ships as a template with shared packages and Cursor agent skills instead of a centrally hosted SaaS, and the trade-offs that follow.
+docType: explanation
+---
+
+# Why DOCS is a template, not a SaaS
+
+This page explains why DOCS is built as a white-label template instead of a hosted documentation service. Read it if you are evaluating DOCS, deciding whether to adopt it, or wondering why specific pieces (SEO packages, OG image pipeline, agent skills) live where they do. You will not find step-by-step instructions here; for those, see the [How-tos](/how-tos/how-to) and [Tutorials](/tutorials/tutorials).
+
+## The short version
+
+DOCS centralizes the parts that benefit from consistency (frontmatter schema, social-card generation, writing standards) and decentralizes the parts that benefit from team ownership (content, build pipeline, deployment). A template plus shared npm packages and Cursor agent skills hits that split better than a SaaS would, at the cost of a sync workflow each consumer repo opts into.
+
+## The model
+
+DOCS has three layers, each with a clear ownership boundary.
+
+- **The template.** A Next.js + Fumadocs static export. Each consumer repo clones it, replaces content, and ships its own deployment. The template contains the rendering pipeline and the section structure, but no organization-specific content.
+- **The shared packages** (`@tetherto/docs-seo-*`). Published to GitHub Packages. They define the SEO frontmatter schema, generate Open Graph images, and emit Next.js metadata, sitemap, and JSON-LD. Consumers upgrade the package version like any other dependency.
+- **The agent skills** (`.cursor/skills/`). Diataxis classification, Google tech-writing rules, frontmatter validation, and a review orchestrator. Cursor reads them automatically from a consumer repo's `.cursor/skills/` directory, so editing rules apply everywhere without per-repo configuration. See [Shared skills](#shared-skills) below.
+
+The first layer is owned by the consumer team after the initial clone. The second and third layers stay in sync with `tetherto/docs-template` through normal package upgrades or a sync command.
+
+## Trade-offs and alternatives
+
+The template + packages + skills split is a deliberate choice. Three alternatives were considered.
+
+- **A hosted SaaS** ("Tether Docs Cloud"). Ruled out because each team already runs its own deployment pipeline and wants its docs colocated with the product code that ships them. A SaaS would force teams to push content into a central system, route traffic through a third party, and depend on someone else's uptime for a static asset.
+- **A monorepo holding every team's docs.** Ruled out because docs versioning is tightly coupled to product versioning. A monorepo creates cross-team merge contention on otherwise independent content.
+- **Fork-each-project, no shared layer.** Ruled out because consistency is the main thing readers notice across an organization's docs. Without shared schema, OG generation, and writing standards, every repo reinvents the same primitives badly.
+
+The cost of the chosen split is the sync workflow: shared packages move forward, the template moves forward, and each consumer repo opts into upgrades. The README documents the three sync flows ([`tiged`](https://github.com/tetherto/docs-template/blob/main/.cursor/skills/README.md), [`npm run sync-skills`](https://github.com/tetherto/docs-template/blob/main/.cursor/skills/README.md), and `git subtree`); pick the one that matches the team's update cadence.
+
+## Limits and open questions
+
+- **Drift detection is opt-in.** Nothing forces a consumer repo to stay current with the template. Teams that pin to an old tag and stop syncing get stale skills and stale SEO behavior. CI-side drift checks are possible but not bundled by default.
+- **Skill versioning is by branch / tag.** There is no semver contract on `.cursor/skills/` yet. A breaking change to a skill (renaming a directory, retiring a docType value) requires consumer-side coordination.
+- **Schema coupling.** `@tetherto/docs-seo-schema` defines the docType enum; the Diataxis skill mirrors it; the directory layout in `content/docs/` mirrors both. The three are aligned today, but a change in any one requires touching the other two.
+
+## Shared skills
+
+The four agent skills shipped under `.cursor/skills/` are the writing-standard counterpart to the SEO packages. Each skill is independently invocable; `docs-review` is the orchestrator.
+
+| Skill | What it covers |
+|---|---|
+| [`diataxis`](https://github.com/tetherto/docs-template/tree/main/.cursor/skills/diataxis) | Classifies each page as tutorial, how-to, reference, or explanation, and enforces the structure and voice of each. Aligned with `docType` in `@tetherto/docs-seo-schema`. |
+| [`google-tech-writing`](https://github.com/tetherto/docs-template/tree/main/.cursor/skills/google-tech-writing) | Applies Google's developer documentation style guide: active voice, second person, present tense, sentence-case headings, banned filler. |
+| [`docs-frontmatter`](https://github.com/tetherto/docs-template/tree/main/.cursor/skills/docs-frontmatter) | Enforces the SEO frontmatter contract: required `description`, recommended `docType` matching the directory, optional `ogImage`, `noIndex`, and `lastModified`. |
+| [`docs-review`](https://github.com/tetherto/docs-template/tree/main/.cursor/skills/docs-review) | Orchestrates the three skills above against a file list or PR diff and emits a single tiered report (must-fix / consider / nit). |
+
+Cursor picks these up automatically from any repo that contains `.cursor/skills/`; no per-repo install is required.
+
+## Where to go next
+
+- To learn DOCS by building, follow a [tutorial](/tutorials/tutorials).
+- To accomplish a specific task, see the [how-tos](/how-tos/how-to).
+- For the API and configuration surface, see the [references](/references/references).
+- To start from zero, read [getting started](/getting-started/quickstart).

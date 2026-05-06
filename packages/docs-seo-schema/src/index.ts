@@ -157,7 +157,7 @@ export function warnMissingSeoFrontmatterFields(
 
   if (missingOptionalEnumish(data, 'docType')) {
     warn(
-      `${DOCS_SEO_WARN_PREFIX} ${label} frontmatter "docType" is missing (set for clearer Diátaxis / JSON-LD defaults).`,
+      `${DOCS_SEO_WARN_PREFIX} ${label} frontmatter "docType" is missing (set for clearer Diataxis / JSON-LD defaults).`,
     );
   }
 
