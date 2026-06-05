@@ -221,7 +221,7 @@ Maintainers decide the final merge strategy. Prefer small, focused pull requests
 - Use clear MDX headings, stable links, and concise examples
 - Keep SEO metadata current when adding or moving docs pages
 - Avoid adding new abstractions unless they reduce real duplication or match an existing local pattern
-- You may follow this opinionated style guide
+- You MAY follow this [opinionated style guide](#opinionated-style-guide)
 
 ## Issues and security
 
@@ -239,25 +239,20 @@ Happy contributing, and thanks for helping improve `docs-template`.
 
 ### Overview 
 
-Google developer style
-US English
-Bullet lists no stop  (- Avalon not - Avalon.)
-Numbered lists stop
-Diataxis ia
-No positional references ("Swap the filename for any other model from the table” NOT "Swap the filename for any other model from the table above”)
-
-### Frontmatter and linking strategy
-
-Links are from relevant text NOT "see ..." (do "The [Worker install pattern][install-pattern] defines the per-Worker mechanics." NOT "See the Worker [install pattern][install-pattern] for the per-Worker mechanics.")
-
-Ask maintainer if the page you are building is to be ported to `tether.io`, if so follow reference-style link definitions plus routing comments:
-
-/mdk-prv/docs/reference/maintainers/port-signals.md
+- [Google developer style](https://developers.google.com/style) | [Vale](./README.md#vale-linting) lints per this guide
+- US English
+- Bullet lists no stop  (- Avalon not - Avalon.)
+- Numbered lists stop
+- Diataxis ia
+- No positional references ("Swap the filename for any other model from the table” NOT "Swap the filename for any other model from the table above”)
+- Links from relevent text NOT "see ..." (do "The [Worker install pattern][install-pattern] defines the per-Worker mechanics." NOT "See the Worker [install pattern][install-pattern] for the per-Worker mechanics.")
+- Restrict line length to ~150 chars
 
 ### Fixed sections, in order
 
-1. `## Overview` — one paragraph or `## How it works`+ "This page ...
-2. `## Next steps` — bullet list, each item `Description — [link](path)`
+1. `## Overview` or `## How it works`— one paragraph or sentence "This page ..." clarifying page's purpose
+2. Body content
+3. Help the user discover more `## Next steps` — bullet list, each item `Description — [link](path)`
 
 ### Admonitions
 
@@ -292,7 +287,6 @@ This is a **success** callout — use for success messages.
 <Callout type="idea">
 This is an **idea** callout — use for tips or suggestions.
 </Callout>
-
 
 ### Code blocks
 
