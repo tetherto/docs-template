@@ -7,6 +7,9 @@
 .contentlayer
 .content-collections
 .source
+/styles/Google/
+/styles/proselint/
+/styles/write-good/
 /content/docs/api-reference.mdx
 /content/docs/qvac/examples.mdx
 

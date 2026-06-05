@@ -1,0 +1,13 @@
+arithmatex
+[aA]utomagically
+[bB]lacklist[s]?
+[bB]lock[ -][cC]hain[s]?
+[dD]oppelgänger
+e[rR][cC][ -]20
+[eE]therum
+log[bB]ack|logBack
+log[sS]tash
+orion
+[pP]egaSys
+p[ -][cC]hain
+x[ -][cC]hain

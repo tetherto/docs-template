@@ -1,0 +1,13 @@
+extends: substitution
+message: "Prefer Tether style."
+level: error
+ignorecase: true
+# This is not working
+action:
+  name: replace
+swap:
+  '′': "'"
+  '″': '"'
+  # Attempt same as unicode
+  "\u2032": "'"
+  "\u2033": '"'

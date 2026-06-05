@@ -1,0 +1,154 @@
+extends: capitalization
+message: "'%s' should use sentence-style capitalization."
+link: 'https://docs.microsoft.com/en-us/style-guide/capitalization'
+level: warning
+scope: heading
+match: $sentence
+indicators:
+  - ':'
+exceptions:
+  - ABB
+  - ABI
+  - Account Management API
+  - AI
+  - Alchemy
+  - Android
+  - API
+  - APIs
+  - App Node
+  - AWS
+  - Azure
+  - Besu
+  - Binance Smart Chain
+  - BLS
+  - BNB Chain
+  - BNB Smart Chain
+  - Caddy
+  - Canaan Avalon
+  - Chain Methods API
+  - CLI
+  - "[Cc]ode"
+  - Content Security Policy
+  - Cosmos
+  - CSP
+  - CSS
+  - curl
+  - DipDup
+  - Docker
+  - ECMAScript
+  - EIP
+  - Electron
+  - Embedded Wallets
+  - Emmet
+  - EOA
+  - ERC
+  - ETH
+  - Ethereum
+  - Ethers.js
+  - EthSigner
+  - EVM
+  - FAQs
+  - Flask
+  - GFM
+  - "[Gg]o"
+  - GoQuorum
+  - Hardhat
+  - Hashicorp
+  - HTML
+  - HTTP
+  - HTTPS
+  - Hyperledger
+  - I
+  - ID
+  - IPFS
+  - JavaScript
+  - JSON
+  - JSX
+  - JWT
+  - JWTs
+  - KMS
+  - Kubernetes
+  - L1
+  - L2
+  - Linea
+  - Linea Enterprise
+  - Linea Yield Boost
+  - Linux
+  - macOS
+  - Marketplace
+  - MCP
+  - MDK
+  - MetaMask
+  - MetaMask Mobile
+  - MicroBT
+  - MIPD Store
+  - MongoDB
+  - Next.js
+  - NFT
+  - NFTs
+  - Node Fetch
+  - Node.js
+  - OG
+  - Open Graph
+  - Orion
+  - ORK
+  - Palm
+  - Parallel Workers
+  - PeerDAS
+  - PegaSys
+  - PoS
+  - PostgreSQL
+  - Pyth
+  - Python
+  - QA
+  - Quorum
+  - React
+  - React Native
+  - REPL
+  - Reservoir
+  - ReservoirKit
+  - RPC
+  - Rust
+  - Sass
+  - SATEC
+  - Schneider Electric
+  - SCSS
+  - SDK
+  - Secret
+  - SENECA
+  - SEO
+  - SES
+  - Snap
+  - Snaps
+  - Snap's
+  - Solana Name Service
+  - Studio
+  - Swagger
+  - Takumi
+  - Tellor
+  - Tether
+  - Tezos
+  - TL;DR
+  - TLS
+  - TOML
+  - TypeScript
+  - UI
+  - Umbrella Network
+  - Unity
+  - URLs
+  - USAGE.md
+  - UX
+  - Vale
+  - Vanilla JS
+  - Vault
+  - ViewModel
+  - Visual
+  - VS
+  - Wallet API
+  - WebSockets
+  - Whatsminer
+  - Windows
+  - Yield Boost
+  - YAML
+  - YML
+  - 2FA
