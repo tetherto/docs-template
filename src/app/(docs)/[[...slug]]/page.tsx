@@ -11,6 +11,7 @@ import { createRelativeLink } from 'fumadocs-ui/mdx';
 import { getMDXComponents } from '@/mdx-components';
 import { resolveIcon } from "@/lib/resolveIcon";
 import { cloneElement, isValidElement } from "react";
+import type { ReactNode } from "react";
 import { LLMCopyButton, ViewOptions } from '@/components/page-actions';
 import { createCompiler } from '@fumadocs/mdx-remote';
 import { fetchExternalContent } from '@/lib/external-source';
@@ -51,7 +52,10 @@ export default async function Page(props: PageProps<'/[[...slug]]'>) {
 
   if ('external' in page.data && typeof page.data.external === 'string') {
     const content = await fetchExternalContent(page.data.external);
-    const compiled = await compiler.compile({ source: content });
+    const compiled = await compiler.compile({
+      source: content,
+      filePath: page.data.external,
+    });
     const RemoteMDX = compiled.body;
     const LocalMDX = page.data.body;
     const filteredToc = page.data.toc?.filter(item => item.depth >= 2 && item.depth <= 5) || [];
@@ -64,7 +68,11 @@ export default async function Page(props: PageProps<'/[[...slug]]'>) {
           <LocalMDX
             components={getMDXComponents({
               ExternalContent: () => (
-                <RemoteMDX components={getMDXComponents({})} />
+                <RemoteMDX
+                  components={getMDXComponents({
+                    TrackCopy: ({ children }: { children: ReactNode }) => <>{children}</>,
+                  })}
+                />
               ),
             })}
           />

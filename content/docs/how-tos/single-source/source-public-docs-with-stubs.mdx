@@ -1,0 +1,87 @@
+---
+title: Source public docs with stubs
+slug: how-tos/single-source/source-public-docs-with-stubs
+description: Generate local stub pages that fetch public content
+external: https://raw.githubusercontent.com/tetherto/qvac/main/docs/website/content/docs/installation.mdx
+docType: how-to
+---
+
+## Overview
+
+Use stubs when you want a local page shell, local metadata, and remote body content fetched during the build.
+This is useful for generated page sets, local callouts, and stable sidebar routes.
+
+<Callout type="warn">
+If your site generates `llms.txt` or `llms-full.txt`, make sure that generation expands `<ExternalContent />` by fetching and compiling the remote MDX, 
+otherwise imported public content may be missing from LLM output.
+</Callout>
+
+## TL;DR
+
+- Generate one local MDX stub per imported page
+- Put `external: <public raw MDX URL>` in stub frontmatter
+- Fetch the remote MDX string and compile it with `@fumadocs/mdx-remote` in the docs page handler
+- Search for `<ExternalContent />` in this page to see where the request for the public source is made and rendered
+
+## Prerequisites
+
+- Install the remote MDX compiler: `npm install @fumadocs/mdx-remote`
+- Keep `source.config.ts` passthrough enabled so `external` frontmatter reaches the page handler
+- Configure the docs page handler (`src/app/(docs)/[[...slug]]/page.tsx`) and fetch helper (`src/lib/external-source.ts`) so `external` frontmatter is 
+fetched, compiled with `@fumadocs/mdx-remote`, and rendered through `<ExternalContent />`
+
+## How it works
+
+View this page's frontmatter to see where it points at the public source. Fumadocs owns the local route and page metadata through the stub file. 
+The `external` frontmatter stores the public raw MDX URL, the page handler fetches 
+that URL, and `@fumadocs/mdx-remote` compiles the returned MDX string during render/build.
+
+`fetchExternalContent()` lives in `src/lib/external-source.ts`; it is this template's helper for fetching, caching, and stripping upstream frontmatter
+ before compilation.
+
+### Page handler
+
+The page handler is configured to:
+
+- Detect stub pages with `external` frontmatter
+- Fetch the public raw MDX URL from that frontmatter
+- Compile the fetched MDX string with `@fumadocs/mdx-remote`
+- Render the local stub body so the stub owns the route, title, description, and page headings
+- Replace `<ExternalContent />` with the compiled public MDX body
+- Keep the table of contents based on the local stub page, not the imported page
+
+```ts
+if ('external' in page.data && typeof page.data.external === 'string') {
+  const content = await fetchExternalContent(page.data.external);
+  const compiled = await compiler.compile({ source: content });
+  // The compiled body is rendered through <ExternalContent />.
+}
+```
+
+See `src/app/(docs)/[[...slug]]/page.tsx` for the full handler.
+
+## Notes
+
+- Decide if the fetch helper should strip upstream frontmatter before compiling the body
+- Pin the raw URL to a tag or commit when the imported page must be reproducible
+- Public URL availability is a dev/build dependency for this page
+
+## Imported QVAC source
+
+The following content is imported from the public QVAC installation documentation.
+<Callout type="info">
+Data source: public [QVAC installation documentation](https://docs.qvac.tether.io/sdk/getting-started/installation/). This page uses the public raw
+MDX source in `external`, owns its own route and guidance, then renders QVAC content before next steps.
+</Callout>
+
+<Callout type="info">
+The table of contents for this page comes from the local stub, so imported QVAC headings do not appear there. To include imported headings, the page 
+handler would need to merge the stub `page.data.toc` with the compiled remote `toc` from `@fumadocs/mdx-remote` and make sure the imported heading IDs 
+still match the rendered content.
+</Callout>
+
+<ExternalContent />
+
+## Next steps
+
+- [Reuse local MDX fragments](/how-tos/single-source/import-mdx-snippets)
