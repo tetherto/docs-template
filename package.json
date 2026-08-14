@@ -22,7 +22,7 @@
     "@tetherto/docs-seo-next": "1.0.0",
     "@tetherto/docs-seo-og": "1.0.0",
     "@tetherto/docs-seo-schema": "1.0.0",
-    "@ai-sdk/openai-compatible": "^1.0.29",
+    "@ai-sdk/openai-compatible": "^3.0.29",
     "@ai-sdk/react": "^2.0.118",
     "@icons-pack/react-simple-icons": "^13.8.0",
     "@inkeep/cxkit-react": "^0.5.111",
