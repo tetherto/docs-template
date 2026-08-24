@@ -1,0 +1,73 @@
+name: Vale documentation lint
+
+on:
+  workflow_call:
+    inputs:
+      filepaths:
+        description: "Comma- or newline-separated Markdown/MDX globs to lint."
+        required: false
+        type: string
+        default: |
+          **/*.md
+          **/*.mdx
+      fail_on_error:
+        description: "Set to true to fail CI when Vale reports errors."
+        required: false
+        type: boolean
+        default: false
+      docs_template_ref:
+        description: "docs-template ref to use as the Vale source of truth."
+        required: false
+        type: string
+        default: main
+
+jobs:
+  vale:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: read
+    steps:
+      - name: Checkout caller repository
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Checkout central Vale configuration
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        with:
+          repository: tetherto/docs-template
+          ref: ${{ inputs.docs_template_ref }}
+          path: .tether-vale-source
+          persist-credentials: false
+
+      - name: Detect changed documentation files
+        id: changed-files
+        uses: tj-actions/changed-files@22103cc46bda19c2b464ffe86db46df6922fd323 # v47.0.5
+        with:
+          path: "."
+          files: ${{ inputs.filepaths }}
+          separator: ","
+
+      - name: List changed documentation files
+        if: steps.changed-files.outputs.any_changed == 'true'
+        run: |
+          echo "The following files were detected for Vale:"
+          echo "${{ steps.changed-files.outputs.all_changed_files }}"
+
+      - name: Set up Python for Vale
+        if: steps.changed-files.outputs.any_changed == 'true'
+        uses: actions/setup-python@82c7e631bb3cdc910f68e0081d67478d79c6982d # v6
+        with:
+          python-version: "3.12"
+
+      - name: Vale
+        if: steps.changed-files.outputs.any_changed == 'true'
+        uses: errata-ai/vale-action@d89dee975228ae261d22c15adcd03578634d429c # v2.1.1
+        with:
+          files: ${{ steps.changed-files.outputs.all_changed_files }}
+          vale_flags: "--config .tether-vale-source/.vale.ini"
+          fail_on_error: ${{ inputs.fail_on_error }}
+          reporter: github-pr-check
+          separator: ","

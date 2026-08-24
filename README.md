@@ -1,4 +1,4 @@
-# DOCS docs
+# Tether.to documentation template site
 
 [This site](https://github.com/tetherto/docs-template.git) is the official documentation and single source of truth for the `tether.io` Documentation guild:
 
@@ -6,6 +6,20 @@
 - Automation scripts for the integration between the codebase and the documentation
 
 The site is a **static export** from a Next.js + [Fumadocs](https://fumadocs.dev) app (`output: 'export'`). SEO behavior is implemented with workspace packages under `@tether/docs-*` (see below).
+
+## Table of contents
+
+- [Installation](#installation)
+- [Monorepo packages (`packages/`)](#monorepo-packages-packages)
+  - [Using these packages from another repository](#using-these-packages-from-another-repository)
+- [SEO and frontmatter](#seo-and-frontmatter)
+- [Environment variables](#environment-variables)
+- [Open Graph images (Takumi, static hosting)](#open-graph-images-takumi-static-hosting)
+- [Development](#development)
+  - [Vale linting](#vale-linting)
+- [Maintainers](#maintainers)
+- [Build](#build)
+- [Repository layout](#repository-layout)
 
 ## Installation
 
@@ -76,7 +90,7 @@ Important: **set an expiration on the token.** Tokens that never expire are reje
 
 After creating the token, if the `tetherto` organization uses SSO, click **"Configure SSO"** next to the token in the tokens list and authorize it for the org. Without that step the registry returns `403` even with the right scopes.
 
-A fine-grained personal access token also works, scoped to the `tetherto` resource owner with **Packages: Read** repository permission. Same expiration requirement applies.
+A fine-grained personal access token also works, scoped to the `tetherto` resource owner with **Packages read** repository permission. Same expiration requirement applies.
 
 #### 3. Save the token locally
 
@@ -92,7 +106,7 @@ npm whoami --registry=https://npm.pkg.github.com   # should print your GitHub us
 npm view @tetherto/docs-seo-schema version --registry=https://npm.pkg.github.com
 ```
 
-If `npm whoami` prints your username but the second command 403s, the token authenticates but lacks `read:packages` (and/or SSO authorization).
+If `npm whoami` prints your username but the second command returns HTTP 403, the token authenticates but lacks `read:packages` (and/or SSO authorization).
 
 #### 5. Install
 
@@ -121,7 +135,7 @@ Extended fields are merged in [`source.config.ts`](source.config.ts) via `tether
 
 Per-page metadata, sitemap, robots, and JSON-LD share the same logic through [`src/lib/seo-config.ts`](src/lib/seo-config.ts) and `@tether/docs-seo-next`.
 
-During `next build` / dev, `getPageSeoState` and `buildDocsMetadata` emit **`[@tether/docs-seo]`** `console.warn` lines for missing optional fields (`ogImage`, `schemaType`, `docType`, `lastModified`, and empty `description` if it bypasses MDX validation). Warnings are deduped per page per Node process. Two env knobs control them:
+During `next build` / dev, `getPageSeoState` and `buildDocsMetadata` emit **`[@tether/docs-seo]`** `console.warn` lines for missing optional fields (`ogImage`, `schemaType`, `docType`, `lastModified`, and empty `description` if it bypasses MDX validation). Warnings are deduplicated per page per Node process. Two env knobs control them:
 
 - **`DOCS_SEO_SILENT=1`** — silence ALL warnings (including the required-`description` warning). Use sparingly.
 - **`DOCS_SEO_QUIET_GENERATED=1`** — silence only the warnings for fields that have sensible auto-generated/inferred defaults (`ogImage`, `schemaType`, `lastModified`). `description` and `docType` warnings stay loud because neither has a useful default. Recommended when you opt into the Takumi OG prebuild + the `fumadocs-mdx` `lastModified` plugin.
@@ -162,9 +176,38 @@ Because static export cannot use dynamic OG Route Handlers, images are **generat
 - Run the generator alone: **`npm run build:og`**
 - Replace [`public/og-default.png`](public/og-default.png) with a proper **1200×630** asset if you rely on the `SKIP_OG_BUILD` fallback
 
-**Git:** This template **gitignores** `public/og/docs/` (see [`.gitignore`](.gitignore)). CI and local **`npm run build`** must run **`prebuild`** so those WebP files exist before static export. To vendor generated images instead, stop ignoring that directory and commit the files.
+**Git note:** this template **gitignores** `public/og/docs/` (see [`.gitignore`](.gitignore)). CI and local **`npm run build`** must run **`prebuild`** so those WebP files exist before static export. To vendor generated images instead, stop ignoring that directory and commit the files.
 
 ## Development
+
+### Vale linting
+
+Vale is available for local documentation linting. Run `vale sync` before linting so Vale downloads the configured package styles into the gitignored `styles/` package directories.
+
+Use the project vocabulary to check custom spelling. For example, Tether should pass, while Tehtr should fail.
+
+Run Vale against a single file:
+
+```bash
+vale sync
+vale README.md
+```
+
+Run Vale against a single folder:
+
+```bash
+vale sync
+vale content/docs
+```
+
+Run Vale against the entire repo:
+
+```bash
+vale sync
+vale .
+```
+
+Vale can be added to CI as an advisory check, but do not configure it to fail CI. The current rule set has too many false positives for a hard gate.
 
 Check broken links:
 
@@ -183,6 +226,37 @@ For local dev without generating OG files, you can use:
 ```bash
 SKIP_OG_BUILD=1 npm run dev
 ```
+
+## Maintainers
+
+### Using Vale in downstream CI
+
+This repository is the source of truth for Tether Vale configuration. Downstream documentation repositories should not copy `.vale.ini` or `styles/`; they can call this repository's reusable workflow instead.
+
+Add a workflow like this to the downstream repository:
+
+```yaml
+name: Vale documentation lint
+
+on:
+  pull_request:
+    paths:
+      - "**/*.md"
+      - "**/*.mdx"
+
+jobs:
+  vale:
+    uses: tetherto/docs-template/.github/workflows/vale-docs.yml@main
+    with:
+      filepaths: |
+        **/*.md
+        **/*.mdx
+      fail_on_error: false
+```
+
+The reusable workflow checks out the downstream repository, checks out this template beside it, detects changed Markdown and MDX files, and runs Vale with this repository's [`.vale.ini`](.vale.ini) and [`styles/`](styles/) configuration. `fail_on_error` defaults to `false` because Vale has too many false positives for a hard CI gate; set it to `true` only after the downstream repository has cleaned up or accepted the rule set.
+
+Synced package styles such as Google, `proselint`, and `write-good` are generated by `vale sync` during the workflow run. Do not commit those generated package directories to downstream repositories.
 
 ## Build
 

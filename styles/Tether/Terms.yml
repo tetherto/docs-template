@@ -1,0 +1,37 @@
+extends: substitution
+message: Prefer '%s' over '%s'.
+ignorecase: true
+level: warning
+action:
+  name: replace
+swap:
+  "(?:assembler|machine language)": assembly language
+  "(?:drive C:|drive C>|C: drive)": drive C
+  "(?:internet bot|web robot)s?": "bot(s)"
+  "(?:mobile|smart) ?phone": phone
+  "24/7": every day
+  "audio(?:-| )book": audiobook
+  "back(?:-| )light": backlight
+  "chat ?bots?": "chatbot(s)"
+  adaptor: adapter
+  administrate: administer
+  afterwards: afterward
+  alphabetic: alphabetical
+  alphanumerical: alphanumeric
+  "an URL": "a URL"
+  anti-aliasing: antialiasing
+  anti-malware: antimalware
+  anti-spyware: antispyware
+  anti-virus: antivirus
+  appendixes: appendices
+  "artificial intelligence": AI
+  caap: CaaP
+  eb: EB
+  gb: GB
+  gbps: Gbps
+  kb: KB
+  keypress: keystroke
+  mb: MB
+  pb: PB
+  tb: TB
+  zb: ZB
