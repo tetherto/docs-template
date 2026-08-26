@@ -12,14 +12,19 @@ import { getMDXComponents } from '@/mdx-components';
 import { resolveIcon } from "@/lib/resolveIcon";
 import { cloneElement, isValidElement } from "react";
 import { LLMCopyButton, ViewOptions } from '@/components/page-actions';
+import { createCompiler } from '@fumadocs/mdx-remote';
+import { fetchExternalContent } from '@/lib/external-source';
 import {
   buildDocsMetadata,
   buildJsonLdGraph,
   DocsJsonLd,
   getPageSeoState,
+  type TetherPage,
 } from '@tetherto/docs-seo-next';
 import { getPageImage } from '@tetherto/docs-seo-og';
 import { getDocsSeoConfig } from '@/lib/seo-config';
+
+const compiler = createCompiler({});
 
 function TitleText({
   title,
@@ -44,6 +49,30 @@ export default async function Page(props: PageProps<'/[[...slug]]'>) {
   const page = source.getPage(params.slug);
   if (!page) notFound();
 
+  if ('external' in page.data && typeof page.data.external === 'string') {
+    const content = await fetchExternalContent(page.data.external);
+    const compiled = await compiler.compile({ source: content });
+    const RemoteMDX = compiled.body;
+    const LocalMDX = page.data.body;
+    const filteredToc = page.data.toc?.filter(item => item.depth >= 2 && item.depth <= 5) || [];
+
+    return (
+      <DocsPage toc={filteredToc} tableOfContent={{ style: "clerk" }} tableOfContentPopover={{ style: "clerk" }} full={page.data.full}>
+        <DocsTitle>{page.data.title}</DocsTitle>
+        <DocsDescription>{page.data.description}</DocsDescription>
+        <DocsBody>
+          <LocalMDX
+            components={getMDXComponents({
+              ExternalContent: () => (
+                <RemoteMDX components={getMDXComponents({})} />
+              ),
+            })}
+          />
+        </DocsBody>
+      </DocsPage>
+    );
+  }
+
   const MDXContent = page.data.body;
 
   const rawIcon =
@@ -62,8 +91,9 @@ export default async function Page(props: PageProps<'/[[...slug]]'>) {
   const filteredToc = page.data.toc?.filter(item => item.depth >= 2 && item.depth <= 5) || [];
   
   const seoConfig = getDocsSeoConfig();
-  const seoState = getPageSeoState(page, seoConfig);
-  const jsonLd = buildJsonLdGraph(page, seoState, seoConfig);
+  const seoPage = page as unknown as TetherPage;
+  const seoState = getPageSeoState(seoPage, seoConfig);
+  const jsonLd = buildJsonLdGraph(seoPage, seoState, seoConfig);
 
   return (
     <DocsPage toc={filteredToc} tableOfContent={{ style: "clerk" }} tableOfContentPopover={{ style: "clerk" }} full={page.data.full}>
@@ -113,12 +143,13 @@ export async function generateMetadata(
   if (!page) notFound();
   const isHomePage = !params.slug || params.slug.length === 0;
   const seoConfig = getDocsSeoConfig();
-  const state = getPageSeoState(page, seoConfig);
+  const seoPage = page as unknown as TetherPage;
+  const state = getPageSeoState(seoPage, seoConfig);
   const ogImageUrl =
     state.ogImageOverride ??
     (process.env.SKIP_OG_BUILD === '1'
       ? (seoConfig.staticOgImagePath ?? '/og-default.png')
-      : getPageImage(page).url);
+      : getPageImage(seoPage).url);
 
   return buildDocsMetadata({
     state,

@@ -1,6 +1,6 @@
 {
   "name": "@tetherto/docs-seo-core",
-  "version": "1.0.0",
+  "version": "1.0.2",
   "description": "Shared SEO state: canonical, indexability, resolved metadata (framework-agnostic)",
   "type": "module",
   "main": "./src/index.ts",
@@ -12,13 +12,13 @@
     "registry": "https://npm.pkg.github.com"
   },
   "dependencies": {
-    "@tetherto/docs-seo-schema": "1.0.0"
+    "@tetherto/docs-seo-schema": "^1.0.0"
   },
   "peerDependencies": {
-    "fumadocs-core": "^16.0.0"
+    "fumadocs-core": "^16.8.0"
   },
   "devDependencies": {
-    "fumadocs-core": "^16.3.2",
+    "fumadocs-core": "^16.8.0",
     "typescript": "^5.9.2"
   }
 }

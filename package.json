@@ -19,6 +19,7 @@
     "sync-skills": "node scripts/sync-skills.mjs"
   },
   "dependencies": {
+    "@fumadocs/mdx-remote": "^1.4.10",
     "@tetherto/docs-seo-next": "1.0.0",
     "@tetherto/docs-seo-og": "1.0.0",
     "@tetherto/docs-seo-schema": "1.0.0",

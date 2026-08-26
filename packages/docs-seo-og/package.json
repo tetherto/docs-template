@@ -1,6 +1,6 @@
 {
   "name": "@tetherto/docs-seo-og",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "Open Graph images via Fumadocs Takumi for Tether docs",
   "type": "module",
   "main": "./src/index.ts",
@@ -15,17 +15,17 @@
   },
   "dependencies": {
     "@takumi-rs/image-response": "^1.0.0-rc.14",
-    "@tetherto/docs-seo-core": "1.0.0",
-    "fumadocs-core": "^16.3.2",
-    "fumadocs-ui": "^16.3.2",
+    "@tetherto/docs-seo-core": "^1.0.0",
+    "fumadocs-core": "^16.8.0",
+    "fumadocs-ui": "^16.8.0",
     "glob": "^11.0.3",
     "gray-matter": "^4.0.3",
     "react": "^19.2.3"
   },
   "peerDependencies": {
     "@takumi-rs/image-response": "^1.0.0-rc.14",
-    "fumadocs-core": "^16.0.0",
-    "fumadocs-ui": "^16.0.0",
+    "fumadocs-core": "^16.8.0",
+    "fumadocs-ui": "^16.8.0",
     "next": "^15.0.0 || ^16.0.0",
     "react": "^19.0.0"
   },

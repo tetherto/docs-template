@@ -1,6 +1,6 @@
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { precomputeTakumiOgImages } from '@tether/docs-seo-og/build';
+import { precomputeTakumiOgImages } from '@tetherto/docs-seo-og/build';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 

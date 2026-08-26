@@ -91,6 +91,9 @@ async function checkBrokenLinksWithFumadocs() {
     }
     
     const validUrls = new Set(fumadocsData.validUrls);
+    const filePathToUrl = new Map(
+      Object.entries(fumadocsData.filePathToUrl || {})
+    );
     const rawValidAnchors = fumadocsData.validAnchors || {};
     const validAnchors = new Map(
       Object.entries(rawValidAnchors).map(([url, anchors]) => {
@@ -116,9 +119,17 @@ async function checkBrokenLinksWithFumadocs() {
       const links = extractLinksFromMDX(content, file);
       
       for (const link of links) {
-        if (isInternalLink(link.url)) {
-          const { url, anchor } = parseLink(link.url);
-          
+        if (!isInternalLink(link.url)) continue;
+
+        const resolved = resolveInternalLink(
+          file,
+          link.url,
+          contentPath,
+          validUrls,
+          filePathToUrl
+        );
+        const { url, anchor } = parseLink(resolved);
+
           // Check if base URL exists
           if (!validUrls.has(url)) {
             brokenLinks.push({
@@ -144,7 +155,6 @@ async function checkBrokenLinksWithFumadocs() {
               });
             }
           }
-        }
       }
     }
     
@@ -187,7 +197,15 @@ function extractLinksFromMDX(content, filePath) {
 }
 
 function isInternalLink(url) {
-  return url.startsWith('/') && !url.startsWith('http');
+  if (!url || url.startsWith('#')) return false;
+  if (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('mailto:')) {
+    return false;
+  }
+  return !url.startsWith('//');
+}
+
+function isAbsoluteInternalLink(url) {
+  return url.startsWith('/');
 }
 
 function parseLink(url) {
@@ -198,48 +216,96 @@ function parseLink(url) {
   };
 }
 
+function getSlugFromFrontmatter(content) {
+  const match = content.match(/^slug:\s*(.+)\s*$/m);
+  if (!match) return null;
+  const slug = match[1].trim().replace(/^['"]|['"]$/g, '');
+  if (slug === '/') return '/';
+  return slug.startsWith('/') ? slug : `/${slug}`;
+}
+
+function getUrlFromMdxFile(relativeFile, content) {
+  const slugUrl = getSlugFromFrontmatter(content);
+  if (slugUrl) return slugUrl;
+
+  const withoutExt = relativeFile.replace(/\.mdx$/, '');
+  if (withoutExt.endsWith('/index')) {
+    return `/${withoutExt.slice(0, -'/index'.length)}`;
+  }
+  return `/${withoutExt}`;
+}
+
+function resolveInternalLink(fromFile, linkUrl, contentPath, validUrls, filePathToUrl) {
+  const [target, hash] = linkUrl.split('#');
+  if (isAbsoluteInternalLink(target)) {
+    return hash ? `${target}#${hash}` : target;
+  }
+
+  const fromAbsolute = path.join(contentPath, fromFile);
+  const resolvedPath = path.normalize(path.join(path.dirname(fromAbsolute), target));
+  const relativeDocPath = path.relative(contentPath, resolvedPath).replace(/\\/g, '/');
+
+  if (filePathToUrl.has(relativeDocPath)) {
+    const url = filePathToUrl.get(relativeDocPath);
+    return hash ? `${url}#${hash}` : url;
+  }
+
+  const candidates = [
+    `/${relativeDocPath}`,
+    relativeDocPath.endsWith('/index')
+      ? `/${relativeDocPath.slice(0, -'/index'.length)}`
+      : null,
+  ].filter(Boolean);
+
+  for (const candidate of candidates) {
+    if (validUrls.has(candidate)) {
+      return hash ? `${candidate}#${hash}` : candidate;
+    }
+  }
+
+  return hash ? `/${relativeDocPath}#${hash}` : `/${relativeDocPath}`;
+}
+
 async function getFumadocsDataManually() {
-  // Fallback: manual parsing of custom-tree.ts
   const customTreePath = path.join(process.cwd(), 'src/lib/custom-tree.ts');
   const customTreeContent = fs.readFileSync(customTreePath, 'utf8');
-  
+
   const validUrls = new Set();
   const urlRegex = /url:\s*['"`]([^'"`]+)['"`]/g;
   let match;
-  
+
   while ((match = urlRegex.exec(customTreeContent)) !== null) {
     validUrls.add(match[1]);
   }
-  
-  // Discover pages via .mdx files and extract anchors
+
   const contentPath = path.join(process.cwd(), 'content/docs');
   const files = await glob('**/*.mdx', { cwd: contentPath });
   const validAnchors = {};
-  
+  const filePathToUrl = new Map();
+
   for (const file of files) {
-    const relativePath = file.replace(/\.mdx$/, '');
-    const url = `/${relativePath}`;
-    validUrls.add(url);
-    
-    // Extract anchors from MDX file
     const filePath = path.join(contentPath, file);
     const content = fs.readFileSync(filePath, 'utf8');
+    const url = getUrlFromMdxFile(file, content);
+    validUrls.add(url);
+    filePathToUrl.set(file.replace(/\.mdx$/, ''), url);
+
     const anchors = extractAnchorsFromMDX(content);
     if (anchors.length > 0) {
       validAnchors[url] = anchors;
-      
-      // Also map version without /index for index pages
-      if (relativePath.endsWith('/index')) {
-        const urlWithoutIndex = url.replace('/index', '');
-        validAnchors[urlWithoutIndex] = anchors;
+
+      if (file.endsWith('index.mdx')) {
+        const indexAlias = url.endsWith('/') ? `${url}index` : `${url}/index`;
+        validAnchors[indexAlias] = anchors;
       }
     }
   }
-  
+
   return {
     pageCount: files.length,
     validUrls: Array.from(validUrls),
-    validAnchors: validAnchors
+    validAnchors,
+    filePathToUrl: Object.fromEntries(filePathToUrl),
   };
 }
 

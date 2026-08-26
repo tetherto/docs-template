@@ -1,9 +1,9 @@
 # DOCS docs
 
-Official documentation and single source of truth for DOCS:
+[This site](https://github.com/tetherto/docs-template.git) is the official documentation and single source of truth for the `tether.io` Documentation guild:
 
-- Source code and content of the docs website.
-- Automation scripts for the integration between the codebase and the documentation.
+- Source code and content of the docs website
+- Automation scripts for the integration between the codebase and the documentation
 
 The site is a **static export** from a Next.js + [Fumadocs](https://fumadocs.dev) app (`output: 'export'`). SEO behavior is implemented with workspace packages under `@tether/docs-*` (see below).
 
@@ -32,11 +32,12 @@ cp env.example .env.local
 
 See [`env.example`](env.example) for all variables. **Required** for production SEO:
 
-- **`NEXT_PUBLIC_DOCS_ORIGIN`** — public docs URL for canonical and social metadata ([`seo-config.ts`](src/lib/seo-config.ts)); optional for local dev (defaults to `http://localhost:3001`).
+- **`NEXT_PUBLIC_DOCS_ORIGIN`** — public docs URL for canonical and social metadata ([`seo-config.ts`](src/lib/seo-config.ts)); optional for local dev (defaults to `http://localhost:3001`)
 
 **Optional — Inkeep:** set **`NEXT_PUBLIC_INKEEP_API_KEY`** only when you want [Inkeep](https://inkeep.com) for **search** (replacing the Fumadocs default dialog) and the **chat** widget. If it is unset, the app uses Fumadocs’ default search and hides Inkeep-specific UI ([`provider.tsx`](src/app/provider.tsx), [`layout.tsx`](src/app/layout.tsx), [`page-actions.tsx`](src/components/page-actions.tsx)).
 
-> **Prebuild note:** `npm run prebuild` runs `tsx` outside Next.js, so **`DOCS_OG_*`** and **`SKIP_OG_BUILD`** are not read from `.env.local` unless you export them in your shell or set them in CI.
+> [!NOTE]
+> `npm run prebuild` runs `tsx` outside Next.js, so **`DOCS_OG_*`** and **`SKIP_OG_BUILD`** are not read from `.env.local` unless you export them in your shell or set them in CI.
 
 ## Monorepo packages (`packages/`)
 
@@ -68,8 +69,8 @@ Commit this file. It contains no secret — only the variable reference.
 
 Create a **classic** PAT at https://github.com/settings/tokens/new with these scopes:
 
-- **`read:packages`** — required, to download `@tetherto/*` from GitHub Packages.
-- **`repo`** — required if any of the source repositories that publish those packages are private (otherwise GitHub returns `403` even with the right scope).
+- **`read:packages`** — required, to download `@tetherto/*` from GitHub Packages
+- **`repo`** — required if any of the source repositories that publish those packages are private (otherwise GitHub returns `403` even with the right scope)
 
 Important: **set an expiration on the token.** Tokens that never expire are rejected by the registry. Pick the shortest expiration that fits your workflow; you'll be regenerating it.
 
@@ -127,6 +128,17 @@ During `next build` / dev, `getPageSeoState` and `buildDocsMetadata` emit **`[@t
 
 The same helpers are re-exported from `@tether/docs-seo-schema`, `@tether/docs-seo-core`, `@tether/docs-seo-next`, and `@tether/docs-seo-og` (`warnMissingSeoFrontmatterFields`).
 
+### Notes for the SEO OG images
+
+When using the SEO OG packages from a remote docs site:
+- Clone with submodules (or after clone: git submodule update --init --recursive) so src/lib/docs-template is populated
+- Run `npm install` so workspaces link the @tetherto/docs-seo-* packages from the submodule
+- Run `npm run build `(or whatever runs prebuild) so `generate-takumi-og.tsx` runs and fills public/og/docs/... for each page
+- CI / deploy, either:
+    - Checkout with submodules (same as local), or
+    - Keep using GITHUB_TOKEN / GitHub App flow from the README to install from GitHub Packages if the submodule isn’t used in that environment
+- Consider adding a fallback, e.g. [MDK docs](https://github.com/tetherto/mdk-docs/) has /og-default.webp if the per-page OG files are missing
+
 ## Environment variables
 
 Full template with comments: [`env.example`](env.example).
@@ -146,9 +158,9 @@ Full template with comments: [`env.example`](env.example).
 
 Because static export cannot use dynamic OG Route Handlers, images are **generated before `next build`** and written under `public/og/docs/.../image.webp`, matching the URLs returned by `getPageImage()`.
 
-- **`npm run build`** and **`npm run build:static`** automatically run **`prebuild`**, which executes `tsx scripts/generate-takumi-og.mts`.
-- Run the generator alone: **`npm run build:og`**.
-- Replace [`public/og-default.png`](public/og-default.png) with a proper **1200×630** asset if you rely on the `SKIP_OG_BUILD` fallback.
+- **`npm run build`** and **`npm run build:static`** automatically run **`prebuild`**, which executes `tsx scripts/generate-takumi-og.mts`
+- Run the generator alone: **`npm run build:og`**
+- Replace [`public/og-default.png`](public/og-default.png) with a proper **1200×630** asset if you rely on the `SKIP_OG_BUILD` fallback
 
 **Git:** This template **gitignores** `public/og/docs/` (see [`.gitignore`](.gitignore)). CI and local **`npm run build`** must run **`prebuild`** so those WebP files exist before static export. To vendor generated images instead, stop ignoring that directory and commit the files.
 
@@ -213,16 +225,16 @@ Cursor reads project skills from `.cursor/skills/` automatically — no installa
 
 ## Repository layout
 
-- `src`: Next.js app and UI.
-- `content/docs`: MDX documentation content.
-- `packages`: workspace packages (`@tether/docs-seo-*`).
-- `public`: static assets; **`public/og/docs/**`** holds prebuilt OG WebP files after `prebuild`.
-- `examples`: runnable DOCS code samples for snippets and tooling.
-- `scripts`: automation (including [`scripts/generate-takumi-og.mts`](scripts/generate-takumi-og.mts) and [`scripts/sync-skills.mjs`](scripts/sync-skills.mjs)).
-- [`.cursor/skills/`](.cursor/skills/): shared documentation skills (Diataxis, Google tech writing, frontmatter, review) — see section above.
-- [`env.example`](env.example): environment variable template (SEO required for prod; Inkeep optional).
-- [`REVIEW-CHECKLIST.md`](REVIEW-CHECKLIST.md): optional manual QA checklist for SEO / static export (stage it if you want it in the repo).
-- **`.source/`** (gitignored, not in git): Fumadocs MDX output; created by **`npm install`** / **`npm run postinstall`**. Regenerate after changing [`source.config.ts`](source.config.ts).
+- `src`: Next.js app and UI
+- `content/docs`: MDX documentation content
+- `packages`: workspace packages (`@tether/docs-seo-*`)
+- `public`: static assets; **`public/og/docs/**`** holds prebuilt OG WebP files after `prebuild`
+- `examples`: runnable DOCS code samples for snippets and tooling
+- `scripts`: automation (including [`scripts/generate-takumi-og.mts`](scripts/generate-takumi-og.mts) and [`scripts/sync-skills.mjs`](scripts/sync-skills.mjs))
+- [`.cursor/skills/`](.cursor/skills/): shared documentation skills (Diataxis, Google tech writing, frontmatter, review) — see section above
+- [`env.example`](env.example): environment variable template (SEO required for prod; Inkeep optional)
+- [`REVIEW-CHECKLIST.md`](REVIEW-CHECKLIST.md): optional manual QA checklist for SEO / static export (stage it if you want it in the repo)
+- **`.source/`** (gitignored, not in git): Fumadocs MDX output; created by **`npm install`** / **`npm run postinstall`**. Regenerate after changing [`source.config.ts`](source.config.ts)
 
 > [!NOTE]
 > Repository structure may evolve as automation and content organization mature.

@@ -1,6 +1,6 @@
 {
   "name": "@tetherto/docs-seo-next",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Next.js App Router helpers: metadata, sitemap, robots, JSON-LD for Fumadocs",
   "type": "module",
   "main": "./src/index.ts",
@@ -12,16 +12,16 @@
     "registry": "https://npm.pkg.github.com"
   },
   "dependencies": {
-    "@tetherto/docs-seo-core": "1.0.0"
+    "@tetherto/docs-seo-core": "^1.0.0"
   },
   "peerDependencies": {
-    "fumadocs-core": "^16.0.0",
+    "fumadocs-core": "^16.8.0",
     "next": "^15.0.0 || ^16.0.0",
     "react": "^19.0.0"
   },
   "devDependencies": {
     "@types/react": "^19.1.13",
-    "fumadocs-core": "^16.3.2",
+    "fumadocs-core": "^16.8.0",
     "next": "^16.1.1",
     "react": "^19.2.3",
     "typescript": "^5.9.2"

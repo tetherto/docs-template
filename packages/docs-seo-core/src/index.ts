@@ -25,7 +25,10 @@ export {
 };
 
 export type TetherPageData = PageData & TetherSeoFrontmatter;
-export type TetherPage = Page<TetherPageData>;
+// In fumadocs-core >= 16.8 the `Page` generic order changed to
+// `Page<Type extends string | undefined, Data extends PageData>` so the data
+// type now lives in the second slot.
+export type TetherPage = Page<string | undefined, TetherPageData>;
 
 export type DocsSeoConfig = {
   /** Production origin, e.g. `https://docs.tether.io` */
