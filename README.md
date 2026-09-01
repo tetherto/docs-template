@@ -210,6 +210,19 @@ npm run serve
 
 This serves the **`out/`** directory (Next.js static export output).
 
+## Documentation skills (Diataxis + Google style)
+
+This template ships [Cursor Agent Skills](https://docs.cursor.com/agent/skills) under [`.cursor/skills/`](.cursor/skills/) that enforce Tether's documentation standards on any repo derived from the template:
+
+| Skill | Purpose |
+|---|---|
+| [`diataxis`](.cursor/skills/diataxis/) | Classifies each page as tutorial, how-to, reference, or explanation, enforces the structure and voice of each, and aligns with `docType` in `@tetherto/docs-seo-schema`. |
+| [`google-tech-writing`](.cursor/skills/google-tech-writing/) | Applies Google's developer documentation style guide: active voice, second person, present tense, sentence-case headings, banned filler, tiered review severity. |
+| [`docs-frontmatter`](.cursor/skills/docs-frontmatter/) | Enforces the SEO frontmatter contract from `@tetherto/docs-seo-schema`: required `description`, recommended `docType` matching directory, and optional `ogImage`, `noIndex`, and `lastModified`. |
+| [`docs-review`](.cursor/skills/docs-review/) | Orchestrates the three skills above against a file list or PR diff and emits a single tiered report (must-fix / consider / nit). |
+
+Cursor reads project skills from `.cursor/skills/` automatically — no installation step. To pull updates from this repo into a consumer repo, see the three sync flows ([`tiged`](.cursor/skills/README.md#option-a--one-shot-copy-tiged--degit), [`npm run sync-skills`](.cursor/skills/README.md#option-b--npm-run-sync-skills-recommended), or [`git subtree`](.cursor/skills/README.md#option-c--git-subtree-history-preserving)) documented in [`.cursor/skills/README.md`](.cursor/skills/README.md). The script entry point is `npm run sync-skills`, defined in [`scripts/sync-skills.mjs`](scripts/sync-skills.mjs).
+
 ## Repository layout
 
 - `src`: Next.js app and UI
@@ -217,7 +230,8 @@ This serves the **`out/`** directory (Next.js static export output).
 - `packages`: workspace packages (`@tether/docs-seo-*`)
 - `public`: static assets; **`public/og/docs/**`** holds prebuilt OG WebP files after `prebuild`
 - `examples`: runnable DOCS code samples for snippets and tooling
-- `scripts`: automation (including [`scripts/generate-takumi-og.mts`](scripts/generate-takumi-og.mts))
+- `scripts`: automation (including [`scripts/generate-takumi-og.mts`](scripts/generate-takumi-og.mts) and [`scripts/sync-skills.mjs`](scripts/sync-skills.mjs))
+- [`.cursor/skills/`](.cursor/skills/): shared documentation skills (Diataxis, Google tech writing, frontmatter, review) — see section above
 - [`env.example`](env.example): environment variable template (SEO required for prod; Inkeep optional)
 - [`REVIEW-CHECKLIST.md`](REVIEW-CHECKLIST.md): optional manual QA checklist for SEO / static export (stage it if you want it in the repo)
 - **`.source/`** (gitignored, not in git): Fumadocs MDX output; created by **`npm install`** / **`npm run postinstall`**. Regenerate after changing [`source.config.ts`](source.config.ts)

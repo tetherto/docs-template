@@ -12,13 +12,13 @@ export const customTree: Node[] = [
     icon: resolveIcon('Map'),
   },
   {
-    name: 'About',
+    name: 'Explanation',
     type: 'folder',
     icon: resolveIcon('Rocket'),
     children: [
       {
-        name: 'About',
-        url: '/about/about',
+        name: 'Explanation',
+        url: '/explanation/explanation',
         type: 'page',
       },
     ]
