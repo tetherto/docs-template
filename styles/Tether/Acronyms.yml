@@ -5,7 +5,9 @@ ignorecase: true
 # Ensures that the existence of 'first' implies the existence of 'second'.
 first: '\b([A-Z]{3,5})\b'
 second: '(?:\b[A-Z][a-z]+ )+\(([A-Z]{3,5})\)'
-# ... with the exception of these:
+# ... with the exception of these.
+# Regex not supported - each entry is a literal string (one acronym per line),
+# so alternation like 'YAML|yaml' does not work; list each form separately.
 exceptions:
   - API
   - AWS
@@ -85,5 +87,6 @@ exceptions:
   - WAR
   - WEI
   - XML
-  - YAML|yaml
+  - YAML
+  - yaml
   - ZIP
