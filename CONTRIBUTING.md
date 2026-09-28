@@ -189,7 +189,7 @@ Before submitting your pull request, confirm that:
 
 - [ ] `npm install` has been run after dependency, workspace, or `source.config.ts` changes
 - [ ] `npm run check-links` passes for docs and link changes
-- [ ] `npm run build` passes for app, package, (or for SEO, or Open Graph changes which are non-functional to this pure markdown site)
+- [ ] `npm run build` passes for app, package, (or for SEO, or Open Graph changes which are non-functional to this pure Markdown site)
 - [ ] Generated files such as `.source/` and `public/og/docs/` are not committed.
 - [ ] New or updated docs pages include required `description` frontmatter
 - [ ] Package changes update versions or release notes when maintainers ask for a publishable release
@@ -243,20 +243,25 @@ Happy contributing, and thanks for helping improve `docs-template`.
 - US English
 - Bullet lists no stop  (- Avalon not - Avalon.)
 - Numbered lists stop
-- Diataxis ia
-- No positional references ("Swap the filename for any other model from the table” NOT "Swap the filename for any other model from the table above”)
-- Links from relevent text NOT "see ..." (do "The [Worker install pattern][install-pattern] defines the per-Worker mechanics." NOT "See the Worker [install pattern][install-pattern] for the per-Worker mechanics.")
+- Diátaxis IA
+- No positional references ("Swap the filename for any other model from the table" NOT "Swap the filename for any other model from the table above")
+- Links from relevant text NOT "see ..."
 - Restrict line length to ~150 chars
+
+### Linking strategy
+
+Links are from relevant text NOT "see ..." (do "The [Worker install pattern][install-pattern] defines the per-Worker mechanics." NOT "See the Worker [install pattern][install-pattern] for the per-Worker mechanics.")
 
 ### Fixed sections, in order
 
-1. `## Overview` or `## How it works`— one paragraph or sentence "This page ..." clarifying page's purpose
+0. Optional TL;DR
+1. `## Overview` or `## How it works` — one paragraph or sentence "This page ..." clarifying page's purpose
 2. Body content
 3. Help the user discover more `## Next steps` — bullet list, each item `Description — [link](path)`
 
 ### Admonitions
 
-Use GFM for markdown pure sites:
+Use GFM for Markdown pure sites:
 
 - `> [!NOTE]` — context, side info
 - `> [!IMPORTANT]` — common failure modes and their fix
@@ -346,3 +351,7 @@ content
 
 - Always fenced with language tag (`bash`, `js`, etc.) except terminal session output which uses plain ` ``` `
 - Expected output blocks are plain ` ``` ` with a preceding "Expected output" sentence
+
+<!-- Reference-style link definition | Dummy link to page in this repo to complete demo -->
+
+[install-pattern]: ./README.md#installation

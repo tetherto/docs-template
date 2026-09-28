@@ -1,13 +1,14 @@
 extends: substitution
-message: "Prefer Tether style."
+message: "Prefer straight quotes over curly/smart quotes."
 level: error
-ignorecase: true
-# This is not working
+# Convert typographic (curly/smart) quotes to straight quotes.
+# nonword is required: without it Vale applies word boundaries (\b) and the
+# punctuation-only patterns below match inconsistently.
+nonword: true
 action:
   name: replace
 swap:
-  '′': "'"
-  '″': '"'
-  # Attempt same as unicode
-  "\u2032": "'"
-  "\u2033": '"'
+  '‘': "'"  # U+2018 left single quotation mark
+  '’': "'"  # U+2019 right single quotation mark / apostrophe
+  '“': '"'  # U+201C left double quotation mark
+  '”': '"'  # U+201D right double quotation mark

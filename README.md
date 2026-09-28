@@ -48,7 +48,7 @@ See [`env.example`](env.example) for all variables. **Required** for production 
 
 - **`NEXT_PUBLIC_DOCS_ORIGIN`** — public docs URL for canonical and social metadata ([`seo-config.ts`](src/lib/seo-config.ts)); optional for local dev (defaults to `http://localhost:3001`)
 
-**Optional — Inkeep:** set **`NEXT_PUBLIC_INKEEP_API_KEY`** only when you want [Inkeep](https://inkeep.com) for **search** (replacing the Fumadocs default dialog) and the **chat** widget. If it is unset, the app uses Fumadocs’ default search and hides Inkeep-specific UI ([`provider.tsx`](src/app/provider.tsx), [`layout.tsx`](src/app/layout.tsx), [`page-actions.tsx`](src/components/page-actions.tsx)).
+**Optional — Inkeep:** set **`NEXT_PUBLIC_INKEEP_API_KEY`** only when you want [Inkeep](https://inkeep.com) for **search** (replacing the Fumadocs default dialog) and the **chat** widget. If it is unset, the app uses Fumadocs' default search and hides Inkeep-specific UI ([`provider.tsx`](src/app/provider.tsx), [`layout.tsx`](src/app/layout.tsx), [`page-actions.tsx`](src/components/page-actions.tsx)).
 
 > [!NOTE]
 > `npm run prebuild` runs `tsx` outside Next.js, so **`DOCS_OG_*`** and **`SKIP_OG_BUILD`** are not read from `.env.local` unless you export them in your shell or set them in CI.
@@ -150,8 +150,8 @@ When using the SEO OG packages from a remote docs site:
 - Run `npm run build `(or whatever runs prebuild) so `generate-takumi-og.tsx` runs and fills public/og/docs/... for each page
 - CI / deploy, either:
     - Checkout with submodules (same as local), or
-    - Keep using GITHUB_TOKEN / GitHub App flow from the README to install from GitHub Packages if the submodule isn’t used in that environment
-- Consider adding a fallback, e.g. [MDK docs](https://github.com/tetherto/mdk-docs/) has /og-default.webp if the per-page OG files are missing
+    - Keep using GITHUB_TOKEN / GitHub App flow from the README to install from GitHub Packages if the submodule isn't used in that environment
+- Consider adding a fallback, such as /og-default.webp if the per-page OG files are missing
 
 ## Environment variables
 
@@ -183,6 +183,13 @@ Because static export cannot use dynamic OG Route Handlers, images are **generat
 ### Vale linting
 
 Vale is available for local documentation linting. Run `vale sync` before linting so Vale downloads the configured package styles into the gitignored `styles/` package directories.
+
+Install the Vale CLI first (see the [Vale install guide][vale-install] for other platforms):
+
+```bash
+# macOS (Homebrew)
+brew install vale
+```
 
 Use the project vocabulary to check custom spelling. For example, Tether should pass, while Tehtr should fail.
 
@@ -298,3 +305,7 @@ This serves the **`out/`** directory (Next.js static export output).
 
 > [!NOTE]
 > Repository structure may evolve as automation and content organization mature.
+
+<!-- Reference-style link definitions can avoid Vale linting false positives -->
+
+[vale-install]: https://vale.sh/docs/vale-cli/installation/
