@@ -36,7 +36,11 @@ jobs:
           fetch-depth: 0
           persist-credentials: false
 
+      # Downstream callers (workflow_call) pull the central config from docs-template.
+      # When docs-template lints itself on a pull_request, it uses its own local
+      # .vale.ini (checked out above), so this step is skipped.
       - name: Checkout central Vale configuration
+        if: github.event_name != 'pull_request'
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
         with:
           repository: tetherto/docs-template
@@ -73,7 +77,9 @@ jobs:
         uses: errata-ai/vale-action@d89dee975228ae261d22c15adcd03578634d429c # v2.1.1
         with:
           files: ${{ steps.changed-files.outputs.all_changed_files }}
-          vale_flags: "--config .tether-vale-source/.vale.ini"
+          # Self-lint (pull_request) uses the local config; downstream (workflow_call)
+          # uses the central config checked out into .tether-vale-source.
+          vale_flags: ${{ github.event_name == 'pull_request' && '--config .vale.ini' || '--config .tether-vale-source/.vale.ini' }}
           fail_on_error: ${{ inputs.fail_on_error || false }}
           reporter: github-pr-check
           separator: ","
