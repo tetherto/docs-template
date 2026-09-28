@@ -45,14 +45,6 @@ export const customTree: Node[] = [
     icon: resolveIcon('Cog'),
     children: [
       { name: 'How-to', url: '/how-tos/how-to', type: 'page', icon: resolveIcon('Router') },
-      {
-        name: 'Single source',
-        type: 'folder',
-        children: [
-          { name: 'Import MDX snippets', url: '/how-tos/single-source/import-mdx-snippets', type: 'page' },
-          { name: 'Source public docs with stubs', url: '/how-tos/single-source/source-public-docs-with-stubs', type: 'page' },
-        ],
-      },
     ],
   },
   {

@@ -1,6 +1,6 @@
 {
   "name": "@tetherto/docs-seo-core",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Shared SEO state: canonical, indexability, resolved metadata (framework-agnostic)",
   "type": "module",
   "main": "./src/index.ts",

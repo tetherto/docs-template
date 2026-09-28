@@ -6,6 +6,7 @@ import { getSlugs } from 'fumadocs-core/source';
 import { ImageResponse } from '@takumi-rs/image-response';
 import type { ImageResponseOptions } from '@takumi-rs/image-response';
 import { generate as OgTemplate } from 'fumadocs-ui/og';
+import { ogImageFileName, resolveOgImageFormat } from '../og-image-format';
 
 /**
  * Context provided to a custom {@link PrecomputeTakumiOgImagesOptions.renderTemplate}.
@@ -42,7 +43,8 @@ export type PrecomputeTakumiOgImagesOptions = {
   /**
    * Forwarded to `ImageResponse` (e.g. `fonts`, `format`, `emoji`).
    * `width`, `height`, and `format: 'webp'` are set by default and may be
-   * overridden here.
+   * overridden here. The written filename always follows the resolved
+   * `format` (e.g. `image.jpg` for `format: 'jpeg'`).
    */
   imageResponseOptions?: Partial<ImageResponseOptions>;
 };
@@ -77,7 +79,8 @@ async function renderOne(
   const description =
     typeof data.description === 'string' ? data.description : '';
 
-  const segments = [...slugs, 'image.webp'];
+  const effectiveFormat = resolveOgImageFormat(imageResponseOptions.format);
+  const segments = [...slugs, ogImageFileName(effectiveFormat)];
   const outPath = outputFilePath(publicDir, ogRouteBase, segments);
   await mkdir(path.dirname(outPath), { recursive: true });
 
@@ -102,8 +105,10 @@ async function renderOne(
 }
 
 /**
- * Generate static WebP OG images under `public/og/docs/.../image.webp` for static export.
- * Uses the same slug rules as Fumadocs (`getSlugs`) and the same path layout as `getPageImage`.
+ * Generate static OG images under `public/og/docs/.../image.webp` (or
+ * `image.jpg`/`image.png` when `imageResponseOptions.format` is overridden)
+ * for static export. Uses the same slug rules as Fumadocs (`getSlugs`) and
+ * the same path layout as `getPageImage`.
  */
 export async function precomputeTakumiOgImages(
   options: PrecomputeTakumiOgImagesOptions,
