@@ -78,6 +78,10 @@ jobs:
           # Self-lint (pull_request) uses the local config; downstream (workflow_call)
           # uses the central config checked out into .tether-vale-source.
           vale_flags: ${{ github.event_name == 'pull_request' && '--config .vale.ini' || '--config .tether-vale-source/.vale.ini' }}
-          fail_on_error: ${{ inputs.fail_on_error || false }}
+          # Self-lint (pull_request): fail the check (red X) so findings are visible.
+          # This is advisory only — keep `vale` OUT of required status checks in branch
+          # protection so a red check never blocks merging. Downstream (workflow_call)
+          # follows the caller's fail_on_error input (default false).
+          fail_on_error: ${{ github.event_name == 'pull_request' || inputs.fail_on_error || false }}
           reporter: github-pr-check
           separator: ","
