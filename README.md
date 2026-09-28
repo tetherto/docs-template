@@ -115,7 +115,7 @@ set -a && . ./.env && set +a
 npm install
 ```
 
-CI sets `GITHUB_TOKEN` directly from secrets (e.g. the built-in `${{ secrets.GITHUB_TOKEN }}` for org-internal workflows, or a PAT secret for cross-org reads) — no `.env` file involved.
+CI sets `GITHUB_TOKEN` directly from secrets (e.g. the built-in `secrets.GITHUB_TOKEN` for org-internal workflows, or a PAT secret for cross-org reads) — no `.env` file involved.
 
 #### Notes for the consumer's `package.json`
 
@@ -165,7 +165,7 @@ Full template with comments: [`env.example`](env.example).
 | `SKIP_OG_BUILD` | No | Set to `1` to use static OG fallback instead of per-page `public/og/docs/**` URLs in metadata. |
 | `DOCS_OG_SITE_LABEL` | No | Takumi `site` label during OG prebuild (default `Tether`). |
 | `DOCS_OG_CONCURRENCY` | No | Parallelism for OG prebuild (default `3`). |
-| `DOCS_SEO_SILENT` | No | Set to `1` to disable ALL `[@tether/docs-seo]` console warnings (including required-`description` checks). |
+| `DOCS_SEO_SILENT` | No | Set to `1` to turn off ALL `[@tether/docs-seo]` console warnings (including required-`description` checks). |
 | `DOCS_SEO_QUIET_GENERATED` | No | Set to `1` to silence only the warnings for fields with auto-generated / inferred defaults (`ogImage`, `schemaType`, `lastModified`). Keeps `description` and `docType` warnings live. |
 
 ## Open Graph images (Takumi, static hosting)
@@ -176,7 +176,7 @@ Because static export cannot use dynamic OG Route Handlers, images are **generat
 - Run the generator alone: **`npm run build:og`**
 - Replace [`public/og-default.png`](public/og-default.png) with a proper **1200×630** asset if you rely on the `SKIP_OG_BUILD` fallback
 
-**Git note:** this template **gitignores** `public/og/docs/` (see [`.gitignore`](.gitignore)). CI and local **`npm run build`** must run **`prebuild`** so those WebP files exist before static export. To vendor generated images instead, stop ignoring that directory and commit the files.
+**Git note:** this template **gitignores** `public/og/docs/` (see [`.gitignore`](.gitignore)). CI and local **`npm run build`** must run **`prebuild`** so those WebP files exist before static export. To vendor generated images instead: stop ignoring that directory and commit the files.
 
 ## Development
 

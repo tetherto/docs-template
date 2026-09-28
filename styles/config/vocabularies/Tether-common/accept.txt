@@ -322,6 +322,7 @@ PoW
 Powershell
 Prometheus
 Proof of Humanity|PoH|POH
+proselint
 proxying
 Prysm|PRYSM
 Prysmatic

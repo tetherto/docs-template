@@ -58,6 +58,10 @@ jobs:
           # (**/*.md) — **/*.md alone does not match root-level files.
           files: ${{ inputs.filepaths || '*.md,**/*.md,*.mdx,**/*.mdx' }}
           files_separator: ","
+          # Don't lint vendored Vale style packages (synced by `vale sync`); their
+          # READMEs are third-party license text, not our prose.
+          files_ignore: styles/Google/**,styles/proselint/**,styles/write-good/**
+          files_ignore_separator: ","
           separator: ","
 
       - name: List changed documentation files
