@@ -1,9 +1,0 @@
-# Local configuration (contains personal paths)
-config.yaml
-
-# Node modules
-node_modules/
-package-lock.json
-
-# Test outputs
-*.log
