@@ -66,15 +66,9 @@ jobs:
           echo "The following files were detected for Vale:"
           echo "${{ steps.changed-files.outputs.all_changed_files }}"
 
-      - name: Set up Python for Vale
-        if: steps.changed-files.outputs.any_changed == 'true'
-        uses: actions/setup-python@82c7e631bb3cdc910f68e0081d67478d79c6982d # v6
-        with:
-          python-version: "3.12"
-
       - name: Vale
         if: steps.changed-files.outputs.any_changed == 'true'
-        uses: errata-ai/vale-action@d89dee975228ae261d22c15adcd03578634d429c # v2.1.1
+        uses: errata-ai/vale-action@518a9136acc6e6668ce7c00d367051e0941e87ff # v3.0.0
         with:
           files: ${{ steps.changed-files.outputs.all_changed_files }}
           # Self-lint (pull_request) uses the local config; downstream (workflow_call)
