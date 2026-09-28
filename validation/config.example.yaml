@@ -1,0 +1,62 @@
+# Validation Configuration Example
+#
+# Copy this file to config.yaml and update with your local paths.
+# config.yaml is git-ignored and will never be committed.
+#
+# SETUP:
+#   cp config.example.yaml config.yaml
+#   # Edit config.yaml with your actual paths
+
+# Source code repo (where the actual implementations live)
+source_repo:
+  path: /path/to/fork-mdk-prv
+  branch: main  # or staging, develop, etc.
+  
+# Documentation repos to validate
+docs_repos:
+  - name: mdk-docs
+    path: /path/to/mdk-docs
+    branch: staging
+  
+  - name: mdk-prv-docs
+    path: /path/to/fork-mdk-prv/docs
+    branch: main
+
+# Paths to specific validation data sources
+validation_sources:
+  # Where deprecated APIs are documented (can be array for multiple sources)
+  changelog_archives:
+    - /path/to/fork-mdk-prv/docs/reference/changelog-archive
+  
+  # Where current API surface is defined (can be array for multiple locations)
+  backend_workers:
+    - /path/to/fork-mdk-prv/backend/workers
+  
+  # Package exports that should be documented
+  package_roots:
+    - /path/to/fork-mdk-prv/packages
+
+# Deprecated terms to flag (can be overridden by changelog scan)
+known_deprecated:
+  functions:
+    - connectThing
+    - collectThingSnap
+    - startWorker  # old pattern, now bootWorker
+  
+  classes:
+    - WM_M56S
+    - AM_S19XP
+    - AV_A1346
+  
+  patterns:
+    # Regex patterns that indicate deprecated usage
+    - pattern: "Worker\\.start\\("
+      replacement: "bootWorker()"
+      reason: "Worker initialization changed to boot pattern"
+
+# Feature coverage requirements
+# If these exports/modules exist in source, they must be mentioned in docs
+required_feature_coverage:
+  - module: "mcp-server"
+    min_mentions: 1
+    reason: "MCP server shipped but often missing from docs"
