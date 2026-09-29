@@ -29,9 +29,11 @@ exceptions:
   - CLI
   - "[Cc]ode"
   - Content Security Policy
+  - CORS
   - Cosmos
   - CSP
   - CSS
+  - CSV
   - curl
   - DipDup
   - Docker
@@ -48,6 +50,7 @@ exceptions:
   - EthSigner
   - EVM
   - FAQs
+  - FE
   - Flask
   - GFM
   - "[Gg]o"
@@ -68,6 +71,7 @@ exceptions:
   - JWTs
   - KMS
   - Kubernetes
+  - KV
   - L1
   - L2
   - Linea
@@ -83,6 +87,7 @@ exceptions:
   - MicroBT
   - MIPD Store
   - MongoDB
+  - MVP
   - Next.js
   - NFT
   - NFTs
@@ -94,16 +99,19 @@ exceptions:
   - ORK
   - Palm
   - Parallel Workers
+  - PDU
   - PeerDAS
   - PegaSys
   - PoS
   - PostgreSQL
+  - PR
   - Pyth
   - Python
   - QA
   - Quorum
   - React
   - React Native
+  - README
   - REPL
   - Reservoir
   - ReservoirKit

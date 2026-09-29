@@ -74,7 +74,7 @@
 [mM]ainnet[s]?
 [mM]arshal(?:ing|ed)?
 [Mm]empool
-[mM]icrobt
+MicroBT
 [mM]inerpool[s]?
 [mM]odify
 [mM]onitor

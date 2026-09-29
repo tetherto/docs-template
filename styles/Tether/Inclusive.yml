@@ -9,5 +9,4 @@ swap:
   'masters?': '"main", "parent" or "primary"'
   'slaves?': '"replica" or "subordinate"'
   'm[ae]n': '"person"'
-  'first[ \-]?class citizens?': '"core feature" or "top-level"'
-  'h[au]ng': '"stop responding"'
+  
