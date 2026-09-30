@@ -252,7 +252,6 @@ devtools
 devtooltest
 dialog
 dialogs
-diataxis
 diátaxis
 dirs
 discport
