@@ -47,14 +47,18 @@
 [eE]node[s]?
 [Ee]nv
 [Ee]phemery
+eskawl
 [eE]thdo
+eugeneglova
 [Ff]2[pP]ool
 [fF]ullscreen
 [fF]umadocs
 [Gg]?wei
 [gG]asless
+habrahamyanbf
 [hH]ardfork[s]?(?:'s)?
 [hH]ashboard[s]?
+[hH]eadless(?:ly)?
 [hH]eatmap[s]?
 [Hh]oodi
 [hH]ostname[s]?
@@ -79,6 +83,7 @@ MicroBT
 [mM]odify
 [mM]onitor
 [mM]onorepo(?:'s)?
+mukama
 [mM]ultiaddresse[s]?
 [mM]ultikey[s]?
 [mM]ultiple
@@ -91,6 +96,7 @@ MicroBT
 [nN]ullish
 [oO]nboard(?:s|ing|ed)?
 [oO]rderbook[s]?
+paragmore
 [pP]arallelization
 [pP]articipate
 [pP]asswordless
@@ -112,11 +118,13 @@ MicroBT
 [rR]edistributable[s]?
 [rR]eentrancy
 [rR]elayer[s]?
+[rR]enderable[s]?
 [rR]epo(?:'s)?
 [rR]epurposing
 [rR]eskin(?:s|ning|ned)?
 [rR]estak(?:e|es|ing|ed)?
 [rR]esync(?:s|ing|ed)?(?:'s)?
+robdll
 [rR]ollout[s]?(?:'s)?
 [Rr]unbook[s]?
 [rR]unnable[s]?
@@ -125,6 +133,7 @@ MicroBT
 [sS]atoshi[s]?
 [Ss]chneider
 [sS]ecretName
+semver
 [Ss]eneca
 [sS]epolia
 [sS]erializ(?:e|ing)
@@ -141,6 +150,7 @@ MicroBT
 [sS]ubstring[s]?
 [sS]uperflash
 [sS]upernode[s]?(?:'s)?
+tekwani
 [tT]enantId
 [tT]erahash
 [tT]estnet[s]?
@@ -150,6 +160,7 @@ MicroBT
 [tT]ruststore[s]?
 [tT]ruthy
 [uU][iI]s?(?:'s)?
+uncategorized
 [uU]nderflow[s]?
 [uU]nencrypt(?:ing|ed)?
 [uU]nichain
@@ -169,7 +180,9 @@ MicroBT
 [wW]eb3
 [Ww]hatsminer
 [wW]hitelabel(?:ling|ing)?
+[wW]ireframe[s]?
 [wW]ithdrawable
+[wW]ordmark[s]?
 [wW]orkspace(?:'s)?
 [yY]aml|YAML
 ^[Ee]therscan$
@@ -231,6 +244,7 @@ frontmatter
 Fusaka
 Ganache
 Geth
+Gio
 Gitcoin
 GitHub
 gitignored
@@ -246,6 +260,7 @@ gRPC
 hardcoded
 Hashi[cC]orp
 Helmfile
+Hemant
 Hexagate
 Holepunch
 Homebrew
