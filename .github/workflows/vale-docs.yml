@@ -8,13 +8,23 @@ on:
         required: false
         type: string
         default: "*.md,**/*.md,*.mdx,**/*.mdx"
+      files_ignore:
+        description: "Comma-separated globs to exclude (generated, vendored, cached, build output). Downstream callers pass their own; the default covers this repo's vendored Vale style packages."
+        required: false
+        type: string
+        default: "styles/Google/**,styles/proselint/**,styles/write-good/**"
       fail_on_error:
         description: "Set to true to fail CI when Vale reports errors."
         required: false
         type: boolean
         default: false
+      central_config:
+        description: "Downstream callers set true to lint against docs-template's central Vale config (checked out from docs_template_ref). Leave false (the default) for docs-template's own self-lint, which uses its local .vale.ini."
+        required: false
+        type: boolean
+        default: false
       docs_template_ref:
-        description: "docs-template ref to use as the Vale source of truth."
+        description: "docs-template ref to use as the Vale source of truth (used only when central_config is true)."
         required: false
         type: string
         default: main
@@ -29,6 +39,10 @@ jobs:
     permissions:
       contents: read
       pull-requests: read
+      # The github-pr-check reporter publishes results as a check run via the
+      # Checks API, which requires checks: write. Downstream callers must grant
+      # the same when they call this workflow.
+      checks: write
     steps:
       - name: Checkout caller repository
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
@@ -36,13 +50,13 @@ jobs:
           fetch-depth: 0
           persist-credentials: false
 
-      # Downstream callers (workflow_call) pull the central config from docs-template.
-      # When docs-template lints itself, it uses its own local .vale.ini (checked out
-      # above), so this step is skipped. We key off github.repository, not
-      # github.event_name: in a reusable workflow github.event_name is the caller's
-      # event (pull_request downstream too), so it cannot tell self-lint from downstream.
+      # Downstream callers set central_config: true to pull the shared config from
+      # docs-template. Self-lint leaves it false (the default) and uses the local
+      # .vale.ini checked out above. An explicit input is used rather than
+      # github.event_name: in a reusable workflow that is the caller's event
+      # (pull_request downstream too), so it cannot tell self-lint from downstream.
       - name: Checkout central Vale configuration
-        if: github.repository != 'tetherto/docs-template'
+        if: ${{ inputs.central_config }}
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
         with:
           repository: tetherto/docs-template
@@ -62,7 +76,7 @@ jobs:
           files_separator: ","
           # Don't lint vendored Vale style packages (synced by `vale sync`); their
           # READMEs are third-party license text, not our prose.
-          files_ignore: styles/Google/**,styles/proselint/**,styles/write-good/**
+          files_ignore: ${{ inputs.files_ignore || 'styles/Google/**,styles/proselint/**,styles/write-good/**' }}
           files_ignore_separator: ","
           separator: ","
 
@@ -77,13 +91,25 @@ jobs:
         uses: errata-ai/vale-action@518a9136acc6e6668ce7c00d367051e0941e87ff # v3.0.0
         with:
           files: ${{ steps.changed-files.outputs.all_changed_files }}
-          # Self-lint uses the local config; downstream (workflow_call) uses the
-          # central config checked out into .tether-vale-source.
-          vale_flags: ${{ github.repository == 'tetherto/docs-template' && '--config .vale.ini' || '--config .tether-vale-source/.vale.ini' }}
-          # Self-lint: fail the check (red X) so findings are visible. This is advisory
-          # only — keep `vale` OUT of required status checks in branch protection so a
-          # red check never blocks merging. Downstream (workflow_call) follows the
-          # caller's fail_on_error input (default false).
-          fail_on_error: ${{ github.repository == 'tetherto/docs-template' || inputs.fail_on_error || false }}
+          # Self-lint (central_config=false) uses the local config; downstream
+          # (central_config=true) uses the central config checked out into
+          # .tether-vale-source.
+          vale_flags: ${{ inputs.central_config && '--config .tether-vale-source/.vale.ini' || '--config .vale.ini' }}
+          # Self-lint (central_config=false): fail the check (red X) so findings are
+          # visible. This is advisory only — keep `vale` OUT of required status checks
+          # in branch protection so a red check never blocks merging. Downstream
+          # (central_config=true) follows the caller's fail_on_error input (default false).
+          fail_on_error: ${{ (!inputs.central_config) || inputs.fail_on_error || false }}
           reporter: github-pr-check
           separator: ","
+
+      # Make the effective blocking behaviour visible without reading the YAML:
+      # self-lint always blocks; downstream follows the caller's fail_on_error.
+      - name: Summarise effective severity
+        if: always()
+        run: |
+          if [ "${{ (!inputs.central_config) || inputs.fail_on_error || false }}" = "true" ]; then
+            echo "**Vale severity:** errors **block** this run (\`fail_on_error=true\`)." >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "**Vale severity:** advisory only — errors are reported, but do **not** block (\`fail_on_error=false\`)." >> "$GITHUB_STEP_SUMMARY"
+          fi
