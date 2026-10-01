@@ -88,7 +88,7 @@ jobs:
 
       - name: Vale
         if: steps.changed-files.outputs.any_changed == 'true'
-        uses: errata-ai/vale-action@518a9136acc6e6668ce7c00d367051e0941e87ff # v3.0.0
+        uses: vale-cli/vale-action@518a9136acc6e6668ce7c00d367051e0941e87ff # v3.0.0
         with:
           files: ${{ steps.changed-files.outputs.all_changed_files }}
           # Self-lint (central_config=false) uses the local config; downstream
