@@ -1,4 +1,3 @@
-լіνеа
 aaaad
 abernathyca
 accessors
@@ -9,7 +8,6 @@ acef
 ack
 acreateserial
 activatable
-activationсode
 addon
 addpeer
 adic
@@ -718,7 +716,6 @@ offenses
 ollama
 ollama's
 omitempty
-сommas
 onlinea
 onthis
 openapi

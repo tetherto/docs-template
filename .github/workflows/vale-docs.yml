@@ -37,10 +37,12 @@ jobs:
           persist-credentials: false
 
       # Downstream callers (workflow_call) pull the central config from docs-template.
-      # When docs-template lints itself on a pull_request, it uses its own local
-      # .vale.ini (checked out above), so this step is skipped.
+      # When docs-template lints itself, it uses its own local .vale.ini (checked out
+      # above), so this step is skipped. We key off github.repository, not
+      # github.event_name: in a reusable workflow github.event_name is the caller's
+      # event (pull_request downstream too), so it cannot tell self-lint from downstream.
       - name: Checkout central Vale configuration
-        if: github.event_name != 'pull_request'
+        if: github.repository != 'tetherto/docs-template'
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
         with:
           repository: tetherto/docs-template
@@ -75,13 +77,13 @@ jobs:
         uses: errata-ai/vale-action@518a9136acc6e6668ce7c00d367051e0941e87ff # v3.0.0
         with:
           files: ${{ steps.changed-files.outputs.all_changed_files }}
-          # Self-lint (pull_request) uses the local config; downstream (workflow_call)
-          # uses the central config checked out into .tether-vale-source.
-          vale_flags: ${{ github.event_name == 'pull_request' && '--config .vale.ini' || '--config .tether-vale-source/.vale.ini' }}
-          # Self-lint (pull_request): fail the check (red X) so findings are visible.
-          # This is advisory only — keep `vale` OUT of required status checks in branch
-          # protection so a red check never blocks merging. Downstream (workflow_call)
-          # follows the caller's fail_on_error input (default false).
-          fail_on_error: ${{ github.event_name == 'pull_request' || inputs.fail_on_error || false }}
+          # Self-lint uses the local config; downstream (workflow_call) uses the
+          # central config checked out into .tether-vale-source.
+          vale_flags: ${{ github.repository == 'tetherto/docs-template' && '--config .vale.ini' || '--config .tether-vale-source/.vale.ini' }}
+          # Self-lint: fail the check (red X) so findings are visible. This is advisory
+          # only — keep `vale` OUT of required status checks in branch protection so a
+          # red check never blocks merging. Downstream (workflow_call) follows the
+          # caller's fail_on_error input (default false).
+          fail_on_error: ${{ github.repository == 'tetherto/docs-template' || inputs.fail_on_error || false }}
           reporter: github-pr-check
           separator: ","

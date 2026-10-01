@@ -1,6 +1,9 @@
 extends: existence
 message: "'%s' is a weasel word!"
 ignorecase: true
+# Opt-in: this is a broad list of -ly adverbs, so it is kept at suggestion level,
+# below the MinAlertLevel = warning in .vale.ini, and does not fire by default.
+# Lower MinAlertLevel (or raise this to warning) to enable it.
 level: suggestion
 tokens:
   - absolutely

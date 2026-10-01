@@ -1,0 +1,18 @@
+extends: substitution
+message: Prefer '%s' over '%s'.
+# Case is significant for data units, so this rule is case-sensitive: 'Gb'
+# (gigabit) must NOT be rewritten to 'GB' (gigabyte). Only the all-lowercase
+# forms are corrected to their canonical byte-unit capitalization.
+ignorecase: false
+level: warning
+action:
+  name: replace
+swap:
+  eb: EB
+  gb: GB
+  gbps: Gbps
+  kb: KB
+  mb: MB
+  pb: PB
+  tb: TB
+  zb: ZB
