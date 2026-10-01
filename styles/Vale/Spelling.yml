@@ -1,0 +1,6 @@
+extends: spelling
+message: "Did you really mean '%s'?"
+level: error
+ignore:
+  - Tether-common/project-words.txt
+  - Tether-common/web3-words.txt

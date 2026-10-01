@@ -1,0 +1,115 @@
+name: Vale documentation lint
+
+on:
+  workflow_call:
+    inputs:
+      filepaths:
+        description: "Comma-separated Markdown/MDX globs to lint (root and nested)."
+        required: false
+        type: string
+        default: "*.md,**/*.md,*.mdx,**/*.mdx"
+      files_ignore:
+        description: "Comma-separated globs to exclude (generated, vendored, cached, build output). Downstream callers pass their own; the default covers this repo's vendored Vale style packages."
+        required: false
+        type: string
+        default: "styles/Google/**,styles/proselint/**,styles/write-good/**"
+      fail_on_error:
+        description: "Set to true to fail CI when Vale reports errors."
+        required: false
+        type: boolean
+        default: false
+      central_config:
+        description: "Downstream callers set true to lint against docs-template's central Vale config (checked out from docs_template_ref). Leave false (the default) for docs-template's own self-lint, which uses its local .vale.ini."
+        required: false
+        type: boolean
+        default: false
+      docs_template_ref:
+        description: "docs-template ref to use as the Vale source of truth (used only when central_config is true)."
+        required: false
+        type: string
+        default: main
+  pull_request:
+    paths:
+      - '**/*.md'
+      - '**/*.mdx'
+
+jobs:
+  vale:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: read
+      # The github-pr-check reporter publishes results as a check run via the
+      # Checks API, which requires checks: write. Downstream callers must grant
+      # the same when they call this workflow.
+      checks: write
+    steps:
+      - name: Checkout caller repository
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      # Downstream callers set central_config: true to pull the shared config from
+      # docs-template. Self-lint leaves it false (the default) and uses the local
+      # .vale.ini checked out above. An explicit input is used rather than
+      # github.event_name: in a reusable workflow that is the caller's event
+      # (pull_request downstream too), so it cannot tell self-lint from downstream.
+      - name: Checkout central Vale configuration
+        if: ${{ inputs.central_config }}
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        with:
+          repository: tetherto/docs-template
+          ref: ${{ inputs.docs_template_ref || 'main' }}
+          path: .tether-vale-source
+          persist-credentials: false
+
+      - name: Detect changed documentation files
+        id: changed-files
+        uses: tj-actions/changed-files@22103cc46bda19c2b464ffe86db46df6922fd323 # v47.0.5
+        with:
+          path: "."
+          # tj-actions splits `files` by `files_separator` (default newline); set it to
+          # a comma to match our comma-separated globs. Include root (*.md) AND nested
+          # (**/*.md) — **/*.md alone does not match root-level files.
+          files: ${{ inputs.filepaths || '*.md,**/*.md,*.mdx,**/*.mdx' }}
+          files_separator: ","
+          # Don't lint vendored Vale style packages (synced by `vale sync`); their
+          # READMEs are third-party license text, not our prose.
+          files_ignore: ${{ inputs.files_ignore || 'styles/Google/**,styles/proselint/**,styles/write-good/**' }}
+          files_ignore_separator: ","
+          separator: ","
+
+      - name: List changed documentation files
+        if: steps.changed-files.outputs.any_changed == 'true'
+        run: |
+          echo "The following files were detected for Vale:"
+          echo "${{ steps.changed-files.outputs.all_changed_files }}"
+
+      - name: Vale
+        if: steps.changed-files.outputs.any_changed == 'true'
+        uses: vale-cli/vale-action@518a9136acc6e6668ce7c00d367051e0941e87ff # v3.0.0
+        with:
+          files: ${{ steps.changed-files.outputs.all_changed_files }}
+          # Self-lint (central_config=false) uses the local config; downstream
+          # (central_config=true) uses the central config checked out into
+          # .tether-vale-source.
+          vale_flags: ${{ inputs.central_config && '--config .tether-vale-source/.vale.ini' || '--config .vale.ini' }}
+          # Self-lint (central_config=false): fail the check (red X) so findings are
+          # visible. This is advisory only — keep `vale` OUT of required status checks
+          # in branch protection so a red check never blocks merging. Downstream
+          # (central_config=true) follows the caller's fail_on_error input (default false).
+          fail_on_error: ${{ (!inputs.central_config) || inputs.fail_on_error || false }}
+          reporter: github-pr-check
+          separator: ","
+
+      # Make the effective blocking behaviour visible without reading the YAML:
+      # self-lint always blocks; downstream follows the caller's fail_on_error.
+      - name: Summarise effective severity
+        if: always()
+        run: |
+          if [ "${{ (!inputs.central_config) || inputs.fail_on_error || false }}" = "true" ]; then
+            echo "**Vale severity:** errors **block** this run (\`fail_on_error=true\`)." >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "**Vale severity:** advisory only — errors are reported, but do **not** block (\`fail_on_error=false\`)." >> "$GITHUB_STEP_SUMMARY"
+          fi
