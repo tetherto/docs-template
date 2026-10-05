@@ -221,7 +221,7 @@ jobs:
           echo "code=$code" >> "$GITHUB_OUTPUT"
           case "$code" in
             0) exit 0 ;;
-            1) [ "$FAIL" = "true" ] && exit 1 || exit 0 ;;
+            1) if [ "$FAIL" = "true" ]; then exit 1; else exit 0; fi ;;
             *) echo "::error::Vale exited $code before checking every file. See the log."; exit "$code" ;;
           esac
 
@@ -253,7 +253,7 @@ jobs:
               echo
               echo "| Level | File | Line | Rule | Message |"
               echo "|---|---|---|---|---|"
-              sed -E 's/^::([a-z]+) file=([^,]+),line=([0-9]+),col=[0-9]+,endColumn=[0-9]+,title=([^:]+)::(.*)$/| \1 | `\2` | \3 | `\4` | \5 |/' \
+              sed -E 's/^::([a-z]+) file=([^,]+),line=([0-9]+),col=[0-9]+,endColumn=[0-9]+,title=([^:]+)::(.*)$/| \1 | \2 | \3 | \4 | \5 |/' \
                 vale-annotations.txt
             fi
           } >> "$GITHUB_STEP_SUMMARY"
