@@ -241,7 +241,26 @@ SKIP_OG_BUILD=1 npm run dev
 This repository provides an opinionated Vale configuration. To use in downstream documentation repositories either:
 
 - **Lint against the shared config** — call this repository's reusable workflow with `central_config: true`. It checks out this template beside the downstream repository and lints against the central [`.vale.ini`](.vale.ini) and [`styles/`](styles/), advisory by default (`fail_on_error: false`).
-- **Lint against your own config, on the shared rules** — call the reusable workflow with `config_path` pointing at a `.vale.ini` in the downstream repository. The template is still checked out beside it at `.tether-vale-source`, so that file can set `StylesPath = .tether-vale-source/styles` and choose which Tether rules apply and at what level, without copying any rule. Use this when a repository needs a different alert floor from the central one.
+- **Lint against your own config, on the shared rules** — call the reusable workflow with `config_path` pointing at a `.vale.ini` in the downstream repository. The template is still checked out beside it at `.tether-vale-source`, so that file can set `StylesPath = .tether-vale-source/styles` and choose which Tether rules apply and at what level, without copying any rule. Use this when a repository needs a different alert floor from the central one. A minimal override file:
+
+  ```ini
+  # Rules come from docs-template, checked out beside this repo by the shared workflow.
+  StylesPath = .tether-vale-source/styles
+  Vocab = Tether-common
+
+  # Alert floor: only rules at or above this level surface.
+  MinAlertLevel = error
+
+  [*.md]
+  # Which shared styles to load. Omit Google, proselint and write-good to skip
+  # their warnings entirely.
+  BasedOnStyles = Tether, Vale
+
+  # Per-rule levels, raised or lowered as this repository needs.
+  Tether.CaseSensitive-Substitution = error
+  Tether.Headings = error
+  ```
+
 - **Lint against a fully custom config** — keep a local `.vale.ini` and styles in the downstream repository and run Vale in that repository's own CI (the [Vale linting](#vale-linting) setup above covers the CLI).
 
 The reusable workflow's self-lint mode (`central_config: false` and no `config_path`) is reserved for this template: it uses the local `.vale.ini` and always fails the job on errors, so it isn't a configuration path for downstream repositories.

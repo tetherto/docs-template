@@ -202,6 +202,10 @@ jobs:
           INLINE: ${{ inputs.inline_annotations }}
           CHANGED: ${{ steps.changed-files.outputs.all_changed_files }}
         run: |
+          # `shell: bash` runs with -e and -o pipefail. Capture Vale's exit code
+          # rather than letting -e abort on 1, which would skip the annotation
+          # output and the advisory-or-blocking decision below.
+          set +e
           set -u
           # Not through xargs: it reports 123 for any non-zero exit of the
           # command it runs, which would hide Vale's 1-versus-2 distinction.
@@ -217,13 +221,13 @@ jobs:
           echo "code=$code" >> "$GITHUB_OUTPUT"
           case "$code" in
             0) exit 0 ;;
-            1) [ "$FAIL" = "true" ] && exit 1 || exit 0 ;;
+            1) if [ "$FAIL" = "true" ]; then exit 1; else exit 0; fi ;;
             *) echo "::error::Vale exited $code before checking every file. See the log."; exit "$code" ;;
           esac
 
       # Every finding, not only the ten per level that GitHub shows inline.
       - name: Summarise findings
-        if: ${{ always() && steps.vale.outputs.code != '' }}
+        if: ${{ always() && steps.changed-files.outputs.any_changed == 'true' }}
         shell: bash
         env:
           MODE: ${{ steps.mode.outputs.mode }}
@@ -249,7 +253,7 @@ jobs:
               echo
               echo "| Level | File | Line | Rule | Message |"
               echo "|---|---|---|---|---|"
-              sed -E 's/^::([a-z]+) file=([^,]+),line=([0-9]+),col=[0-9]+,endColumn=[0-9]+,title=([^:]+)::(.*)$/| \1 | `\2` | \3 | `\4` | \5 |/' \
+              sed -E 's/^::([a-z]+) file=([^,]+),line=([0-9]+),col=[0-9]+,endColumn=[0-9]+,title=([^:]+)::(.*)$/| \1 | \2 | \3 | \4 | \5 |/' \
                 vale-annotations.txt
             fi
           } >> "$GITHUB_STEP_SUMMARY"
