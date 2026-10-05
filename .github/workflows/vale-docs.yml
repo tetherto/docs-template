@@ -202,6 +202,10 @@ jobs:
           INLINE: ${{ inputs.inline_annotations }}
           CHANGED: ${{ steps.changed-files.outputs.all_changed_files }}
         run: |
+          # `shell: bash` runs with -e and -o pipefail. Capture Vale's exit code
+          # rather than letting -e abort on 1, which would skip the annotation
+          # output and the advisory-or-blocking decision below.
+          set +e
           set -u
           # Not through xargs: it reports 123 for any non-zero exit of the
           # command it runs, which would hide Vale's 1-versus-2 distinction.
@@ -223,7 +227,7 @@ jobs:
 
       # Every finding, not only the ten per level that GitHub shows inline.
       - name: Summarise findings
-        if: ${{ always() && steps.vale.outputs.code != '' }}
+        if: ${{ always() && steps.changed-files.outputs.any_changed == 'true' }}
         shell: bash
         env:
           MODE: ${{ steps.mode.outputs.mode }}
