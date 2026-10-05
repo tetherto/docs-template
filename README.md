@@ -240,10 +240,11 @@ SKIP_OG_BUILD=1 npm run dev
 
 This repository provides an opinionated Vale configuration. To use in downstream documentation repositories either:
 
-- **Lint against the shared config** — call this repository's reusable workflow with `central_config: true`. It checks out this template beside the downstream repository and lints against the central [`.vale.ini`](.vale.ini) and [`styles/`](styles/), with blocking advisory by default (`fail_on_error: false`).
-- **Lint against custom config** — keep a local `.vale.ini` in the downstream repository and run Vale against it in that repository's own CI (the [Vale linting](#vale-linting) setup above covers the CLI).
+- **Lint against the shared config** — call this repository's reusable workflow with `central_config: true`. It checks out this template beside the downstream repository and lints against the central [`.vale.ini`](.vale.ini) and [`styles/`](styles/), advisory by default (`fail_on_error: false`).
+- **Lint against your own config, on the shared rules** — call the reusable workflow with `config_path` pointing at a `.vale.ini` in the downstream repository. The template is still checked out beside it at `.tether-vale-source`, so that file can set `StylesPath = .tether-vale-source/styles` and choose which Tether rules apply and at what level, without copying any rule. Use this when a repository needs a different alert floor from the central one.
+- **Lint against a fully custom config** — keep a local `.vale.ini` and styles in the downstream repository and run Vale in that repository's own CI (the [Vale linting](#vale-linting) setup above covers the CLI).
 
-The reusable workflow's `central_config: false` default is reserved for this template's own self-lint: it uses the local `.vale.ini` and always fails the check on errors (`fail_on_error` is forced on), so it isn't a configuration path for downstream repositories.
+The reusable workflow's self-lint mode (`central_config: false` and no `config_path`) is reserved for this template: it uses the local `.vale.ini` and always fails the job on errors, so it isn't a configuration path for downstream repositories.
 
 Add a workflow like this to the downstream repository. The example pins to a reviewed commit SHA for a reproducible gate; see the tradeoff with tracking a branch below.
 
@@ -263,9 +264,10 @@ jobs:
     permissions:
       contents: read
       pull-requests: read
-      checks: write            # the reusable workflow reports via a GitHub check run
     with:
       central_config: true     # lint against this template's central .vale.ini
+      # Or, instead of central_config, your own file on the shared rules:
+      # config_path: .vale.ini
       docs_template_ref: <reviewed-commit-sha>
       # Optional — exclude generated, vendored, cached, or build-output files
       # (comma-separated globs):
@@ -273,6 +275,9 @@ jobs:
       # Optional — defaults to "*.md,**/*.md,*.mdx,**/*.mdx" (comma-separated):
       # filepaths: "*.md,**/*.md,*.mdx,**/*.mdx"
       fail_on_error: false
+      # Optional — set false to keep findings out of the diff view and show
+      # them only in the job summary and the check's annotation list:
+      # inline_annotations: true
 ```
 
 Choose how closely the downstream gate tracks this template:
@@ -280,14 +285,14 @@ Choose how closely the downstream gate tracks this template:
 - **Pin to a reviewed commit SHA** — reproducible: the workflow and the Vale config it loads never change until you bump the ref deliberately. Use the **same** SHA for both the `uses:` ref and `docs_template_ref` so they always move together.
 - **Track a branch like `@main`** — always current: the downstream repository picks up config changes automatically, at the cost of a gate that can shift under you between runs (a style tweak here can turn a green check red without any change on your side). Set `docs_template_ref` to the same branch.
 
-Either way, the calling job must grant `checks: write`, because the workflow reports through a GitHub check run.
-
-Set `central_config: true` to lint against this template's [`.vale.ini`](.vale.ini) and [`styles/`](styles/). The reusable workflow then checks out the downstream repository, checks out this template beside it, detects changed Markdown and MDX files (minus anything matched by `files_ignore`), and runs Vale.
+The workflow runs a pinned Vale release directly and prints each alert as a GitHub annotation through [`.github/vale/github-annotations.tmpl`](.github/vale/github-annotations.tmpl). The job is the only check that reports: findings appear inline on the pull request diff and the job summary lists every one of them. GitHub shows at most ten inline annotations per level per step, so the summary is the complete view. No `checks: write` permission is needed.
 
 Then choose how findings gate CI with `fail_on_error`:
 
-- **`false` (default)** — advisory: Vale reports findings but the check never fails. Recommended, because Vale has too many false positives for a hard CI gate.
-- **`true`** — hard gate: Vale errors fail the check. Set this only after the downstream repository has cleaned up or accepted the rule set.
+- **`false` (default)** — advisory: Vale reports findings but the job stays green. Recommended, because Vale has too many false positives for a hard CI gate, and a red check that reviewers learn to ignore weakens every check that is meant to block.
+- **`true`** — hard gate: Vale errors fail the job. Set this only after the downstream repository has cleaned up or accepted the rule set.
+
+Either way a Vale run that cannot complete (a broken config or rule, exit code 2) fails the job, because then nothing was checked.
 
 Synced package styles such as Google, `proselint`, and `write-good` are generated by `vale sync` during the workflow run. Do not commit those generated package directories to downstream repositories.
 
