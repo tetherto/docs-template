@@ -1,4 +1,4 @@
-# DOCS docs
+# Tether.to documentation template site
 
 [This site](https://github.com/tetherto/docs-template.git) is the official documentation and single source of truth for the `tether.io` Documentation guild:
 
@@ -6,6 +6,20 @@
 - Automation scripts for the integration between the codebase and the documentation
 
 The site is a **static export** from a Next.js + [Fumadocs](https://fumadocs.dev) app (`output: 'export'`). SEO behavior is implemented with workspace packages under `@tether/docs-*` (see below).
+
+## Table of contents
+
+- [Installation](#installation)
+- [Monorepo packages (`packages/`)](#monorepo-packages-packages)
+  - [Using these packages from another repository](#using-these-packages-from-another-repository)
+- [SEO and frontmatter](#seo-and-frontmatter)
+- [Environment variables](#environment-variables)
+- [Open Graph images (Takumi, static hosting)](#open-graph-images-takumi-static-hosting)
+- [Development](#development)
+  - [Vale linting](#vale-linting)
+- [Maintainers](#maintainers)
+- [Build](#build)
+- [Repository layout](#repository-layout)
 
 ## Installation
 
@@ -34,7 +48,7 @@ See [`env.example`](env.example) for all variables. **Required** for production 
 
 - **`NEXT_PUBLIC_DOCS_ORIGIN`** — public docs URL for canonical and social metadata ([`seo-config.ts`](src/lib/seo-config.ts)); optional for local dev (defaults to `http://localhost:3001`)
 
-**Optional — Inkeep:** set **`NEXT_PUBLIC_INKEEP_API_KEY`** only when you want [Inkeep](https://inkeep.com) for **search** (replacing the Fumadocs default dialog) and the **chat** widget. If it is unset, the app uses Fumadocs’ default search and hides Inkeep-specific UI ([`provider.tsx`](src/app/provider.tsx), [`layout.tsx`](src/app/layout.tsx), [`page-actions.tsx`](src/components/page-actions.tsx)).
+**Optional — Inkeep:** set **`NEXT_PUBLIC_INKEEP_API_KEY`** only when you want [Inkeep](https://inkeep.com) for **search** (replacing the Fumadocs default dialog) and the **chat** widget. If it is unset, the app uses Fumadocs' default search and hides Inkeep-specific UI ([`provider.tsx`](src/app/provider.tsx), [`layout.tsx`](src/app/layout.tsx), [`page-actions.tsx`](src/components/page-actions.tsx)).
 
 > [!NOTE]
 > `npm run prebuild` runs `tsx` outside Next.js, so **`DOCS_OG_*`** and **`SKIP_OG_BUILD`** are not read from `.env.local` unless you export them in your shell or set them in CI.
@@ -76,7 +90,7 @@ Important: **set an expiration on the token.** Tokens that never expire are reje
 
 After creating the token, if the `tetherto` organization uses SSO, click **"Configure SSO"** next to the token in the tokens list and authorize it for the org. Without that step the registry returns `403` even with the right scopes.
 
-A fine-grained personal access token also works, scoped to the `tetherto` resource owner with **Packages: Read** repository permission. Same expiration requirement applies.
+A fine-grained personal access token also works, scoped to the `tetherto` resource owner with **Packages read** repository permission. Same expiration requirement applies.
 
 #### 3. Save the token locally
 
@@ -92,7 +106,7 @@ npm whoami --registry=https://npm.pkg.github.com   # should print your GitHub us
 npm view @tetherto/docs-seo-schema version --registry=https://npm.pkg.github.com
 ```
 
-If `npm whoami` prints your username but the second command 403s, the token authenticates but lacks `read:packages` (and/or SSO authorization).
+If `npm whoami` prints your username but the second command returns HTTP 403, the token authenticates but lacks `read:packages` (and/or SSO authorization).
 
 #### 5. Install
 
@@ -101,7 +115,7 @@ set -a && . ./.env && set +a
 npm install
 ```
 
-CI sets `GITHUB_TOKEN` directly from secrets (e.g. the built-in `${{ secrets.GITHUB_TOKEN }}` for org-internal workflows, or a PAT secret for cross-org reads) — no `.env` file involved.
+CI sets `GITHUB_TOKEN` directly from secrets (e.g. the built-in `secrets.GITHUB_TOKEN` for org-internal workflows, or a PAT secret for cross-org reads) — no `.env` file involved.
 
 #### Notes for the consumer's `package.json`
 
@@ -121,7 +135,7 @@ Extended fields are merged in [`source.config.ts`](source.config.ts) via `tether
 
 Per-page metadata, sitemap, robots, and JSON-LD share the same logic through [`src/lib/seo-config.ts`](src/lib/seo-config.ts) and `@tether/docs-seo-next`.
 
-During `next build` / dev, `getPageSeoState` and `buildDocsMetadata` emit **`[@tether/docs-seo]`** `console.warn` lines for missing optional fields (`ogImage`, `schemaType`, `docType`, `lastModified`, and empty `description` if it bypasses MDX validation). Warnings are deduped per page per Node process. Two env knobs control them:
+During `next build` / dev, `getPageSeoState` and `buildDocsMetadata` emit **`[@tether/docs-seo]`** `console.warn` lines for missing optional fields (`ogImage`, `schemaType`, `docType`, `lastModified`, and empty `description` if it bypasses MDX validation). Warnings are deduplicated per page per Node process. Two env knobs control them:
 
 - **`DOCS_SEO_SILENT=1`** — silence ALL warnings (including the required-`description` warning). Use sparingly.
 - **`DOCS_SEO_QUIET_GENERATED=1`** — silence only the warnings for fields that have sensible auto-generated/inferred defaults (`ogImage`, `schemaType`, `lastModified`). `description` and `docType` warnings stay loud because neither has a useful default. Recommended when you opt into the Takumi OG prebuild + the `fumadocs-mdx` `lastModified` plugin.
@@ -136,8 +150,8 @@ When using the SEO OG packages from a remote docs site:
 - Run `npm run build `(or whatever runs prebuild) so `generate-takumi-og.tsx` runs and fills public/og/docs/... for each page
 - CI / deploy, either:
     - Checkout with submodules (same as local), or
-    - Keep using GITHUB_TOKEN / GitHub App flow from the README to install from GitHub Packages if the submodule isn’t used in that environment
-- Consider adding a fallback, e.g. [MDK docs](https://github.com/tetherto/mdk-docs/) has /og-default.webp if the per-page OG files are missing
+    - Keep using GITHUB_TOKEN / GitHub App flow from the README to install from GitHub Packages if the submodule isn't used in that environment
+- Consider adding a fallback, such as /og-default.webp if the per-page OG files are missing
 
 ## Environment variables
 
@@ -151,7 +165,7 @@ Full template with comments: [`env.example`](env.example).
 | `SKIP_OG_BUILD` | No | Set to `1` to use static OG fallback instead of per-page `public/og/docs/**` URLs in metadata. |
 | `DOCS_OG_SITE_LABEL` | No | Takumi `site` label during OG prebuild (default `Tether`). |
 | `DOCS_OG_CONCURRENCY` | No | Parallelism for OG prebuild (default `3`). |
-| `DOCS_SEO_SILENT` | No | Set to `1` to disable ALL `[@tether/docs-seo]` console warnings (including required-`description` checks). |
+| `DOCS_SEO_SILENT` | No | Set to `1` to turn off ALL `[@tether/docs-seo]` console warnings (including required-`description` checks). |
 | `DOCS_SEO_QUIET_GENERATED` | No | Set to `1` to silence only the warnings for fields with auto-generated / inferred defaults (`ogImage`, `schemaType`, `lastModified`). Keeps `description` and `docType` warnings live. |
 
 ## Open Graph images (Takumi, static hosting)
@@ -162,9 +176,45 @@ Because static export cannot use dynamic OG Route Handlers, images are **generat
 - Run the generator alone: **`npm run build:og`**
 - Replace [`public/og-default.png`](public/og-default.png) with a proper **1200×630** asset if you rely on the `SKIP_OG_BUILD` fallback
 
-**Git:** This template **gitignores** `public/og/docs/` (see [`.gitignore`](.gitignore)). CI and local **`npm run build`** must run **`prebuild`** so those WebP files exist before static export. To vendor generated images instead, stop ignoring that directory and commit the files.
+**Git note:** this template **gitignores** `public/og/docs/` (see [`.gitignore`](.gitignore)). CI and local **`npm run build`** must run **`prebuild`** so those WebP files exist before static export. To vendor generated images instead: stop ignoring that directory and commit the files.
 
 ## Development
+
+### Vale linting
+
+Vale is available for local documentation linting. Run `vale sync` before linting so Vale downloads the configured package styles into the gitignored `styles/` package directories.
+
+Install the Vale CLI first (see the [Vale install guide][vale-install] for other platforms):
+
+```bash
+# macOS (Homebrew)
+brew install vale
+```
+
+Use the project vocabulary to check custom spelling. For example, Tether should pass, while Tehtr should fail.
+
+Run Vale against a single file:
+
+```bash
+vale sync
+vale README.md
+```
+
+Run Vale against a single folder:
+
+```bash
+vale sync
+vale content/docs
+```
+
+Run Vale against the entire repo:
+
+```bash
+vale sync
+vale .
+```
+
+Vale can be added to CI as an advisory check, but do not configure it to fail CI. The current rule set has too many false positives for a hard gate.
 
 Check broken links:
 
@@ -183,6 +233,68 @@ For local dev without generating OG files, you can use:
 ```bash
 SKIP_OG_BUILD=1 npm run dev
 ```
+
+## Maintainers
+
+### Using Vale in downstream CI
+
+This repository provides an opinionated Vale configuration. To use in downstream documentation repositories either:
+
+- **Lint against the shared config** — call this repository's reusable workflow with `central_config: true`. It checks out this template beside the downstream repository and lints against the central [`.vale.ini`](.vale.ini) and [`styles/`](styles/), advisory by default (`fail_on_error: false`).
+- **Lint against your own config, on the shared rules** — call the reusable workflow with `config_path` pointing at a `.vale.ini` in the downstream repository. The template is still checked out beside it at `.tether-vale-source`, so that file can set `StylesPath = .tether-vale-source/styles` and choose which Tether rules apply and at what level, without copying any rule. Use this when a repository needs a different alert floor from the central one.
+- **Lint against a fully custom config** — keep a local `.vale.ini` and styles in the downstream repository and run Vale in that repository's own CI (the [Vale linting](#vale-linting) setup above covers the CLI).
+
+The reusable workflow's self-lint mode (`central_config: false` and no `config_path`) is reserved for this template: it uses the local `.vale.ini` and always fails the job on errors, so it isn't a configuration path for downstream repositories.
+
+Add a workflow like this to the downstream repository. The example pins to a reviewed commit SHA for a reproducible gate; see the tradeoff with tracking a branch below.
+
+```yaml
+name: Vale documentation lint
+
+on:
+  pull_request:
+    paths:
+      - "**/*.md"
+      - "**/*.mdx"
+
+jobs:
+  vale:
+    # Keep the workflow ref AND docs_template_ref on the same ref (SHA or branch).
+    uses: tetherto/docs-template/.github/workflows/vale-docs.yml@<reviewed-commit-sha>
+    permissions:
+      contents: read
+      pull-requests: read
+    with:
+      central_config: true     # lint against this template's central .vale.ini
+      # Or, instead of central_config, your own file on the shared rules:
+      # config_path: .vale.ini
+      docs_template_ref: <reviewed-commit-sha>
+      # Optional — exclude generated, vendored, cached, or build-output files
+      # (comma-separated globs):
+      files_ignore: "path/to/generated/**,**/vendor/**"
+      # Optional — defaults to "*.md,**/*.md,*.mdx,**/*.mdx" (comma-separated):
+      # filepaths: "*.md,**/*.md,*.mdx,**/*.mdx"
+      fail_on_error: false
+      # Optional — set false to keep findings out of the diff view and show
+      # them only in the job summary and the check's annotation list:
+      # inline_annotations: true
+```
+
+Choose how closely the downstream gate tracks this template:
+
+- **Pin to a reviewed commit SHA** — reproducible: the workflow and the Vale config it loads never change until you bump the ref deliberately. Use the **same** SHA for both the `uses:` ref and `docs_template_ref` so they always move together.
+- **Track a branch like `@main`** — always current: the downstream repository picks up config changes automatically, at the cost of a gate that can shift under you between runs (a style tweak here can turn a green check red without any change on your side). Set `docs_template_ref` to the same branch.
+
+The workflow runs a pinned Vale release directly and prints each alert as a GitHub annotation through [`.github/vale/github-annotations.tmpl`](.github/vale/github-annotations.tmpl). The job is the only check that reports: findings appear inline on the pull request diff and the job summary lists every one of them. GitHub shows at most ten inline annotations per level per step, so the summary is the complete view. No `checks: write` permission is needed.
+
+Then choose how findings gate CI with `fail_on_error`:
+
+- **`false` (default)** — advisory: Vale reports findings but the job stays green. Recommended, because Vale has too many false positives for a hard CI gate, and a red check that reviewers learn to ignore weakens every check that is meant to block.
+- **`true`** — hard gate: Vale errors fail the job. Set this only after the downstream repository has cleaned up or accepted the rule set.
+
+Either way a Vale run that cannot complete (a broken config or rule, exit code 2) fails the job, because then nothing was checked.
+
+Synced package styles such as Google, `proselint`, and `write-good` are generated by `vale sync` during the workflow run. Do not commit those generated package directories to downstream repositories.
 
 ## Build
 
@@ -224,3 +336,7 @@ This serves the **`out/`** directory (Next.js static export output).
 
 > [!NOTE]
 > Repository structure may evolve as automation and content organization mature.
+
+<!-- Reference-style link definitions can avoid Vale linting false positives -->
+
+[vale-install]: https://vale.sh/docs/vale-cli/installation/

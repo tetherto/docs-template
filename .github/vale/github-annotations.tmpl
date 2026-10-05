@@ -1,0 +1,19 @@
+{{- /*
+Vale output template that prints one line per alert in GitHub's annotation
+syntax: `::warning file=<path>,line=<n>,title=<rule>::<message>`. The Actions
+runner intercepts lines in that form on stdout (GitHub calls them workflow
+commands) and renders each as an inline annotation on the pull request diff
+and in the job summary. So the job itself is the only check that reports: no
+reviewdog, no Checks API, no second check run.
+
+Severity map: Vale error -> ::error, warning -> ::warning, suggestion -> ::notice.
+Used by .github/workflows/vale-docs.yml via `vale --output <this file>`.
+*/ -}}
+{{- range .Files -}}
+{{- $path := .Path -}}
+{{- range .Alerts -}}
+{{- $level := "notice" -}}
+{{- if eq .Severity "error" }}{{ $level = "error" }}{{ else if eq .Severity "warning" }}{{ $level = "warning" }}{{ end -}}
+::{{ $level }} file={{ $path }},line={{ .Line }},col={{ index .Span 0 }},endColumn={{ index .Span 1 }},title={{ .Check }}::{{ .Message }}
+{{ end -}}
+{{- end -}}

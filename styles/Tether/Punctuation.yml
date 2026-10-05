@@ -1,0 +1,14 @@
+extends: substitution
+message: "Prefer straight quotes over curly/smart quotes."
+level: error
+# Convert typographic (curly/smart) quotes to straight quotes.
+# nonword is required: without it Vale applies word boundaries (\b) and the
+# punctuation-only patterns below match inconsistently.
+nonword: true
+action:
+  name: replace
+swap:
+  '‘': "'"  # U+2018 left single quotation mark
+  '’': "'"  # U+2019 right single quotation mark / apostrophe
+  '“': '"'  # U+201C left double quotation mark
+  '”': '"'  # U+201D right double quotation mark

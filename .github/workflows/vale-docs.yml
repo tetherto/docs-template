@@ -1,0 +1,255 @@
+# Prose lint for Markdown and MDX. Runs a pinned Vale binary directly and
+# prints one GitHub annotation per alert through .github/vale/github-annotations.tmpl,
+# so the job is the only check that reports on the pull request. There is no
+# reviewdog layer and no Checks API write, so one Vale run is one check.
+#
+# Three ways to call it, chosen by the inputs:
+#
+#   self-lint   central_config=false and no config_path. docs-template linting
+#               itself with its local .vale.ini. Always blocks on errors so rule
+#               changes are visible here before any downstream repository sees them.
+#   central     central_config=true. Lints against this repository's .vale.ini
+#               and styles/, checked out from docs_template_ref. Blocks only if
+#               fail_on_error is true.
+#   own config  config_path set. The caller's own .vale.ini, which can point its
+#               StylesPath at the central styles checkout to reuse the Tether
+#               rules while choosing its own alert floor. Blocks only if
+#               fail_on_error is true.
+#
+# Inline annotations are capped by GitHub at ten per level per step in the
+# Files view; the job summary lists every finding.
+name: Vale documentation lint
+
+on:
+  workflow_call:
+    inputs:
+      filepaths:
+        description: "Comma-separated Markdown/MDX globs to lint (root and nested)."
+        required: false
+        type: string
+        default: "*.md,**/*.md,*.mdx,**/*.mdx"
+      files_ignore:
+        description: "Comma-separated globs to exclude (generated, vendored, cached, build output). Downstream callers pass their own; the default covers this repo's vendored Vale style packages."
+        required: false
+        type: string
+        default: "styles/Google/**,styles/proselint/**,styles/write-good/**"
+      fail_on_error:
+        description: "Set to true to fail the job when Vale reports errors. Ignored for self-lint, which always fails on errors."
+        required: false
+        type: boolean
+        default: false
+      central_config:
+        description: "Set true to lint against docs-template's central .vale.ini and styles/, checked out from docs_template_ref. Leave false for docs-template's own self-lint."
+        required: false
+        type: boolean
+        default: false
+      config_path:
+        description: "Path, relative to the caller's checkout, of the caller's own .vale.ini. When set it overrides central_config's choice of config; the central styles are still checked out to .tether-vale-source so the file can reuse them through StylesPath."
+        required: false
+        type: string
+        default: ""
+      docs_template_ref:
+        description: "docs-template ref to check out for the central config, styles and annotation template (used whenever central_config is true or config_path is set)."
+        required: false
+        type: string
+        default: main
+      inline_annotations:
+        description: "Set false to keep findings out of the pull request diff view. They then appear only in the job summary and the check's annotation list. GitHub shows at most ten inline annotations per level per step either way."
+        required: false
+        type: boolean
+        default: true
+  pull_request:
+    paths:
+      - '**/*.md'
+      - '**/*.mdx'
+      - '.vale.ini'
+      - 'styles/**'
+      - '.github/vale/**'
+      - '.github/workflows/vale-docs.yml'
+
+env:
+  # Bump both together. The checksum is the Linux_64-bit line from
+  # vale_<version>_checksums.txt on the release page.
+  VALE_VERSION: "3.24.0"
+  VALE_SHA256: "867534ddb678abca7f214bc4706ead0922bd5252ffe8035fc227013f66c8b214"
+
+jobs:
+  vale:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: read
+    steps:
+      # Resolve the three call modes once, so every later step reads an output
+      # instead of repeating the expression. An explicit input is used rather
+      # than github.event_name: in a reusable workflow that is the caller's event
+      # (pull_request downstream too), so it cannot tell self-lint from downstream.
+      - name: Resolve lint mode
+        id: mode
+        shell: bash
+        env:
+          CENTRAL: ${{ inputs.central_config }}
+          CONFIG_PATH: ${{ inputs.config_path }}
+          FAIL_ON_ERROR: ${{ inputs.fail_on_error }}
+        run: |
+          set -euo pipefail
+          if [ "$CENTRAL" != "true" ] && [ -z "$CONFIG_PATH" ]; then
+            mode=self-lint
+            config=.vale.ini
+            template=.github/vale/github-annotations.tmpl
+            fail=true
+            central_checkout=false
+          elif [ -n "$CONFIG_PATH" ]; then
+            mode=own-config
+            config="$CONFIG_PATH"
+            template=.tether-vale-source/.github/vale/github-annotations.tmpl
+            fail="$FAIL_ON_ERROR"
+            central_checkout=true
+          else
+            mode=central
+            config=.tether-vale-source/.vale.ini
+            template=.tether-vale-source/.github/vale/github-annotations.tmpl
+            fail="$FAIL_ON_ERROR"
+            central_checkout=true
+          fi
+          {
+            echo "mode=$mode"
+            echo "config=$config"
+            echo "template=$template"
+            echo "fail=$fail"
+            echo "central_checkout=$central_checkout"
+          } >> "$GITHUB_OUTPUT"
+          echo "Vale mode: $mode (config: $config, blocks on errors: $fail)"
+
+      - name: Checkout caller repository
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Checkout central Vale configuration
+        if: ${{ steps.mode.outputs.central_checkout == 'true' }}
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        with:
+          repository: tetherto/docs-template
+          ref: ${{ inputs.docs_template_ref || 'main' }}
+          path: .tether-vale-source
+          persist-credentials: false
+
+      - name: Detect changed documentation files
+        id: changed-files
+        uses: tj-actions/changed-files@22103cc46bda19c2b464ffe86db46df6922fd323 # v47.0.5
+        with:
+          path: "."
+          # tj-actions splits `files` by `files_separator` (default newline); set it to
+          # a comma to match our comma-separated globs. Include root (*.md) AND nested
+          # (**/*.md) — **/*.md alone does not match root-level files.
+          files: ${{ inputs.filepaths || '*.md,**/*.md,*.mdx,**/*.mdx' }}
+          files_separator: ","
+          # Don't lint vendored Vale style packages (synced by `vale sync`); their
+          # READMEs are third-party license text, not our prose.
+          files_ignore: ${{ inputs.files_ignore || 'styles/Google/**,styles/proselint/**,styles/write-good/**' }}
+          files_ignore_separator: ","
+          separator: ","
+
+      - name: List changed documentation files
+        if: steps.changed-files.outputs.any_changed == 'true'
+        run: |
+          echo "The following files were detected for Vale:"
+          echo "${{ steps.changed-files.outputs.all_changed_files }}"
+
+      - name: Install Vale
+        if: steps.changed-files.outputs.any_changed == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          tarball="vale_${VALE_VERSION}_Linux_64-bit.tar.gz"
+          curl -sSfL -o "/tmp/${tarball}" \
+            "https://github.com/errata-ai/vale/releases/download/v${VALE_VERSION}/${tarball}"
+          echo "${VALE_SHA256}  /tmp/${tarball}" | sha256sum --check --strict
+          mkdir -p /tmp/vale-bin
+          tar -xzf "/tmp/${tarball}" -C /tmp/vale-bin vale
+          echo "/tmp/vale-bin" >> "$GITHUB_PATH"
+          /tmp/vale-bin/vale --version
+
+      # Downloads any Packages the chosen config declares into its StylesPath.
+      # A config with no Packages line is a no-op here.
+      - name: Sync Vale packages
+        if: steps.changed-files.outputs.any_changed == 'true'
+        shell: bash
+        env:
+          CONFIG: ${{ steps.mode.outputs.config }}
+        run: vale --no-global --config "$CONFIG" sync
+
+      # Vale exits 0 when no error-level alert was found, 1 when at least one
+      # was, and 2 when Vale itself could not run (bad config, broken rule).
+      # Exit 1 is the advisory-or-blocking decision; exit 2 always fails,
+      # because then nothing was checked. --no-global keeps any user-level
+      # config on the runner out of the run.
+      #
+      # The template prints `::level file=...::message` lines. Echoed as-is,
+      # the runner renders each as an inline annotation on the diff. With
+      # inline_annotations=false the `file=` part is dropped, so the runner
+      # still lists them on the check but leaves the diff view clean.
+      - name: Vale
+        id: vale
+        if: steps.changed-files.outputs.any_changed == 'true'
+        shell: bash
+        env:
+          CONFIG: ${{ steps.mode.outputs.config }}
+          TEMPLATE: ${{ steps.mode.outputs.template }}
+          FAIL: ${{ steps.mode.outputs.fail }}
+          INLINE: ${{ inputs.inline_annotations }}
+          CHANGED: ${{ steps.changed-files.outputs.all_changed_files }}
+        run: |
+          set -u
+          # Not through xargs: it reports 123 for any non-zero exit of the
+          # command it runs, which would hide Vale's 1-versus-2 distinction.
+          IFS=',' read -r -a files <<< "$CHANGED"
+          vale --no-global --config "$CONFIG" --output "$TEMPLATE" "${files[@]}" \
+            > vale-annotations.txt
+          code=$?
+          if [ "$INLINE" = "false" ]; then
+            sed -E 's/^(::[a-z]+) file=([^,]+),line=([0-9]+),col=[0-9]+,endColumn=[0-9]+,(title=[^:]+)::/\1 \4::\2:\3: /' vale-annotations.txt
+          else
+            cat vale-annotations.txt
+          fi
+          echo "code=$code" >> "$GITHUB_OUTPUT"
+          case "$code" in
+            0) exit 0 ;;
+            1) [ "$FAIL" = "true" ] && exit 1 || exit 0 ;;
+            *) echo "::error::Vale exited $code before checking every file. See the log."; exit "$code" ;;
+          esac
+
+      # Every finding, not only the ten per level that GitHub shows inline.
+      - name: Summarise findings
+        if: ${{ always() && steps.vale.outputs.code != '' }}
+        shell: bash
+        env:
+          MODE: ${{ steps.mode.outputs.mode }}
+          CONFIG: ${{ steps.mode.outputs.config }}
+          FAIL: ${{ steps.mode.outputs.fail }}
+        run: |
+          set -euo pipefail
+          [ -f vale-annotations.txt ] || exit 0
+          errors=$(grep -c '^::error ' vale-annotations.txt || true)
+          warnings=$(grep -c '^::warning ' vale-annotations.txt || true)
+          notices=$(grep -c '^::notice ' vale-annotations.txt || true)
+          {
+            echo "### Vale prose lint"
+            echo
+            echo "- **Mode:** \`$MODE\` (config \`$CONFIG\`)"
+            if [ "$FAIL" = "true" ]; then
+              echo "- **Severity:** errors **block** this run (\`fail_on_error=true\`)"
+            else
+              echo "- **Severity:** advisory only — errors are reported, but do **not** block (\`fail_on_error=false\`)"
+            fi
+            echo "- **Findings:** $errors error(s), $warnings warning(s), $notices suggestion(s)"
+            if [ -s vale-annotations.txt ]; then
+              echo
+              echo "| Level | File | Line | Rule | Message |"
+              echo "|---|---|---|---|---|"
+              sed -E 's/^::([a-z]+) file=([^,]+),line=([0-9]+),col=[0-9]+,endColumn=[0-9]+,title=([^:]+)::(.*)$/| \1 | `\2` | \3 | `\4` | \5 |/' \
+                vale-annotations.txt
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"

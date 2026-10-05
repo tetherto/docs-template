@@ -1,0 +1,11 @@
+extends: existence
+message: "'%s' left in text."
+# Replaces proselint.Annotations (disabled in .vale.ini). 'NOTE' is intentionally
+# omitted because it collides with GFM callout syntax (e.g. `> [!NOTE]`) and
+# produces false positives that Vale's token/block ignores cannot reliably clear.
+ignorecase: false
+level: error
+tokens:
+  - XXX
+  - FIXME
+  - TODO
