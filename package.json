@@ -31,7 +31,7 @@
     "@radix-ui/react-presence": "^1.1.5",
     "ai": "^7.0.85",
     "class-variance-authority": "^0.7.1",
-    "dotenv": "^17.2.3",
+    "dotenv": "^18.0.5",
     "fumadocs-core": "^16.15.15",
     "fumadocs-mdx": "^15.4.0",
     "fumadocs-ui": "^16.15.15",
