@@ -161,6 +161,8 @@ Full template with comments: [`env.example`](env.example).
 |----------|----------|---------|
 | `NEXT_PUBLIC_DOCS_ORIGIN` | **Yes** (production) | Site origin for `metadataBase`, canonicals, and absolute `og:image` / Twitter URLs. Defaults to `http://localhost:3001` when unset. |
 | `NEXT_PUBLIC_INKEEP_API_KEY` | No | Inkeep CXKit API key. If set, replaces Fumadocs default search with Inkeep and enables the Inkeep chat widget; if unset, default Fumadocs search is used. |
+| `NEXT_PUBLIC_QVAC_API_URL` | No | Origin of the QVAC docs search service. If set, the search box uses it (semantic search; the built-in search answers when the service fails) and Inkeep, if keyed, becomes the Ask AI button. The service must allow this site's origin (`QVAC_ALLOWED_ORIGINS`) and run with `QVAC_SEARCH_PUBLIC=1`. See [`packages/docs-search`](packages/docs-search/README.md). |
+| `NEXT_PUBLIC_DOCS_REPO` | No | This site's GitHub repo (`owner/repo`), written into `/docs-search.json`, the page export the service builds its index from. Defaults to `tetherto/docs-template`. |
 | `NEXT_PUBLIC_DOCS_PUBLISHER_LOGO_URL` | No | HTTPS logo for JSON-LD publisher / `Organization`. |
 | `SKIP_OG_BUILD` | No | Set to `1` to use static OG fallback instead of per-page `public/og/docs/**` URLs in metadata. |
 | `DOCS_OG_SITE_LABEL` | No | Takumi `site` label during OG prebuild (default `Tether`). |
