@@ -1,13 +1,13 @@
 # @tetherto/docs-search
 
 Semantic search for a [Fumadocs](https://fumadocs.dev) site, backed by the QVAC
-docs search service ([tetherto/qvac-docs-search](https://github.com/tetherto/qvac-docs-search)). It has three parts, each usable on
+docs search service ([the QVAC docs search repo](https://github.com/tetherto/qvac-docs-search)). It has three parts, each usable on
 its own:
 
 | Subpath | What it is | Runs in |
 | --- | --- | --- |
 | `@tetherto/docs-search` | The search dialog (`createDocsSearchDialog`, `DocsSearchDialog`). One request to the service per settled query; the site's own search takes over when the service cannot answer. | the browser |
-| `@tetherto/docs-search/mcp-install` | `McpInstallButton`: "Add to your AI tool", for Claude Code, Claude Desktop, Cursor and VS Code. | the browser |
+| `@tetherto/docs-search/mcp-install` | `McpInstallButton`: "Add to your AI tool", for Claude Code, Claude Desktop, Cursor, and VS Code. | the browser |
 | `@tetherto/docs-search/export` | `createSearchExport`: the route that publishes every page for the service's index builder. | the build |
 | `@tetherto/docs-search/inkeep` | `inkeepAskAI`: an "Ask AI" button for the dialog, backed by Inkeep. Optional. | the browser |
 | `@tetherto/docs-search/client`, `/contract` | The HTTP client, and the types of the service's responses and of the export. No React. | anywhere |
@@ -56,7 +56,7 @@ its own dialog, so `apiUrl` cannot go there. The dialog is also the default
 export and `DocsSearchDialog`, with the same props, for `next/dynamic` or direct
 use.
 
-Add the package's classes to Tailwind v4, in the site's global stylesheet, after
+Add the package's classes to Tailwind v4, in the site's global style sheet, after
 `@import 'tailwindcss'`:
 
 ```css
