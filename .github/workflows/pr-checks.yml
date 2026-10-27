@@ -38,3 +38,35 @@ jobs:
 
       - name: Typecheck ${{ matrix.package }}
         run: npx tsc --noEmit -p packages/${{ matrix.package }}/tsconfig.json
+
+  # packages/docs-search ships compiled output, so `npm test` builds it first and
+  # the tests read what the build wrote. Run against the lowest Fumadocs the
+  # package claims to support and the one the lockfile has: Fumadocs changes its
+  # search and dialog APIs between minor versions, and a site picks up whichever
+  # its own lockfile has.
+  docs-search:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        fumadocs: [locked, lowest]
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 24
+          cache: npm
+
+      - run: npm ci
+
+      - name: Use the lowest supported Fumadocs
+        if: matrix.fumadocs == 'lowest'
+        run: npm install --no-save --workspace packages/docs-search fumadocs-core@16.3.2 fumadocs-ui@16.3.2
+
+      - name: Typecheck
+        run: npm run typecheck --workspace packages/docs-search
+
+      - name: Test
+        run: npm test --workspace packages/docs-search

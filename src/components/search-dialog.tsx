@@ -25,7 +25,7 @@ const STOP_WORDS = [
   'how', 'what', 'which', 'who', 'whom', 'why', 'not', 'no', 'so', 'such',
 ];
 
-function initDB() {
+export function initDB() {
   return create({
     schema: { _: 'string' },
     components: {

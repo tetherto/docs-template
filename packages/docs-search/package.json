@@ -1,0 +1,83 @@
+{
+  "name": "@tetherto/docs-search",
+  "version": "0.1.0",
+  "description": "Semantic docs search for Fumadocs sites: a search dialog and MCP install button for the QVAC docs search service, and the page export its index is built from",
+  "type": "module",
+  "sideEffects": [
+    "*.css"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./client": {
+      "types": "./dist/client.d.ts",
+      "default": "./dist/client.js"
+    },
+    "./export": {
+      "types": "./dist/export.d.ts",
+      "default": "./dist/export.js"
+    },
+    "./contract": {
+      "types": "./dist/contract.d.ts",
+      "default": "./dist/contract.js"
+    },
+    "./inkeep": {
+      "types": "./dist/inkeep.d.ts",
+      "default": "./dist/inkeep.js"
+    },
+    "./mcp-install": {
+      "types": "./dist/mcp-install.d.ts",
+      "default": "./dist/mcp-install.js"
+    },
+    "./tailwind.css": "./tailwind.css",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist",
+    "tailwind.css",
+    "README.md",
+    "CHANGELOG.md"
+  ],
+  "peerDependencies": {
+    "@inkeep/cxkit-react": ">=0.5.111 <0.6",
+    "fumadocs-core": ">=16.3.2 <17",
+    "fumadocs-ui": ">=16.3.2 <17",
+    "react": ">=19.2.0 <20"
+  },
+  "peerDependenciesMeta": {
+    "@inkeep/cxkit-react": {
+      "optional": true
+    }
+  },
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tetherto/docs-template.git",
+    "directory": "packages/docs-search"
+  },
+  "scripts": {
+    "build": "node scripts/clean.mjs && tsc -p tsconfig.build.json",
+    "typecheck": "tsc --noEmit",
+    "pretest": "npm run build",
+    "test": "node --import tsx --test test/*.test.ts test/*.test.tsx",
+    "prepublishOnly": "npm run build"
+  },
+  "devDependencies": {
+    "@inkeep/cxkit-react": "^0.5.111",
+    "@types/node": "^22.0.0",
+    "@types/react": "^19.2.0",
+    "@types/react-dom": "^19.2.0",
+    "fumadocs-core": "^16.15.15",
+    "fumadocs-ui": "^16.15.15",
+    "linkedom": "^0.18.13",
+    "next": "^16.1.1",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
+    "tsx": "^4.21.0",
+    "typescript": "~5.9.2"
+  }
+}
