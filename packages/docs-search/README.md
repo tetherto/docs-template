@@ -150,7 +150,7 @@ export const { GET } = createSearchExport(source, {
 
 The site's normal production build writes the file. It holds, for each page,
 what Fumadocs knows: the loader's URL, title, description, the processed
-markdown, the table of contents and `structuredData`. Because the URLs come from
+Markdown, the table of contents and `structuredData`. Because the URLs come from
 the loader, route groups, `baseUrl` and includes are right by construction.
 
 - The collection needs `postprocess: { includeProcessedMarkdown: true }` in

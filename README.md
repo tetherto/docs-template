@@ -193,7 +193,7 @@ Install the Vale CLI first (see the [Vale install guide][vale-install] for other
 brew install vale
 ```
 
-Use the project vocabulary to check custom spelling. For example, Tether should pass, while Tehtr should fail.
+Use the project vocabulary to check custom spelling. For example, `Tether` should pass, while `Tehtr` should fail.
 
 Run Vale against a single file:
 
