@@ -55,7 +55,10 @@ function retryAfterMs(header: string | null, now: number): number | undefined {
 }
 
 export function createDocsSearchClient(options: DocsSearchClientOptions): DocsSearchClient {
-  const endpoint = `${options.apiUrl.trim().replace(/\/+$/, '')}/api/search`;
+  // A loop, not /\/+$/: that regex backtracks quadratically on a run of slashes.
+  let base = options.apiUrl.trim();
+  while (base.endsWith('/')) base = base.slice(0, -1);
+  const endpoint = `${base}/api/search`;
   const topK = options.topK ?? 6;
   const timeoutMs = options.timeoutMs ?? 4000;
 
