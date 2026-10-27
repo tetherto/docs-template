@@ -48,8 +48,8 @@ export async function docsOgGet(
     {
       width: 1200,
       height: 630,
-      format: effectiveFormat,
       ...options.imageResponseOptions,
-    },
+      format: effectiveFormat,
+    } as ImageResponseOptions,
   );
 }
