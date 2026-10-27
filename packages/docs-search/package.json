@@ -67,16 +67,13 @@
     "prepublishOnly": "npm run build"
   },
   "devDependencies": {
-    "@happy-dom/global-registrator": "^21.0.1",
     "@inkeep/cxkit-react": "^0.5.111",
-    "@testing-library/dom": "^10.4.2",
-    "@testing-library/react": "^16.3.3",
     "@types/node": "^22.0.0",
     "@types/react": "^19.2.0",
     "@types/react-dom": "^19.2.0",
     "fumadocs-core": "^16.15.15",
     "fumadocs-ui": "^16.15.15",
-    "happy-dom": "^21.0.1",
+    "linkedom": "^0.18.13",
     "next": "^16.1.1",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",

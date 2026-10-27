@@ -1,11 +1,11 @@
 import { test, afterEach } from 'node:test';
 import assert from 'node:assert/strict';
-import { GlobalRegistrator } from '@happy-dom/global-registrator';
+import { registerDom } from './dom.js';
 
-GlobalRegistrator.register({ url: 'https://docs.example.com/' });
+registerDom('https://docs.example.com/');
 
 const { createElement: h } = await import('react');
-const { render, screen, cleanup, fireEvent, waitFor } = await import('@testing-library/react');
+const { render, screen, cleanup, fireEvent, waitFor } = await import('./render.js');
 const { McpInstallButton } = await import('../src/mcp-install.js');
 const { inkeepAskAI } = await import('../src/inkeep.js');
 

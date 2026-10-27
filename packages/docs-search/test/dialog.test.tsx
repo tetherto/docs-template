@@ -1,25 +1,17 @@
-import { test, afterEach, before } from 'node:test';
+import { test, afterEach } from 'node:test';
 import assert from 'node:assert/strict';
-import { GlobalRegistrator } from '@happy-dom/global-registrator';
+import { registerDom } from './dom.js';
 
 // A DOM for the components. Registered before they (and React) are imported.
-GlobalRegistrator.register({ url: 'https://docs.example.com/' });
+registerDom('https://docs.example.com/');
 const realFetch = globalThis.fetch;
 
 const { createElement: h, useEffect } = await import('react');
-const { render, screen, cleanup, fireEvent, waitFor } = await import('@testing-library/react');
+const { render, screen, cleanup, fireEvent, waitFor } = await import('./render.js');
 const { FrameworkProvider } = await import('fumadocs-core/framework');
 const { DocsSearchDialog, createDocsSearchDialog } = await import('../src/dialog.js');
 type Props = Parameters<typeof DocsSearchDialog>[0];
 
-before(() => {
-  // Radix measures with these.
-  globalThis.ResizeObserver ??= class {
-    observe() {}
-    unobserve() {}
-    disconnect() {}
-  } as never;
-});
 afterEach(() => {
   cleanup();
   globalThis.fetch = realFetch;
