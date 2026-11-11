@@ -43,6 +43,7 @@ exceptions:
   - EIP
   - Electron
   - Embedded Wallets
+  - EMCD
   - Emmet
   - EOA
   - ERC
@@ -54,6 +55,7 @@ exceptions:
   - FAQs
   - FE
   - Flask
+  - Foundry
   - Gateway
   - GFM
   - "[Gg]o"
@@ -97,6 +99,7 @@ exceptions:
   - NFTs
   - Node Fetch
   - Node.js
+  - Ocean
   - OG
   - Open Graph
   - Orion
@@ -126,6 +129,7 @@ exceptions:
   - Schneider Electric
   - SCSS
   - SDK
+  - SealMiner
   - Secret
   - SENECA
   - SEO
@@ -134,6 +138,7 @@ exceptions:
   - Snaps
   - Snap's
   - Solana Name Service
+  - SpiderPool
   - Studio
   - Swagger
   - Takumi
