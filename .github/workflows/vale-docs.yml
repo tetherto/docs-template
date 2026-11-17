@@ -164,7 +164,7 @@ jobs:
         run: |
           set -euo pipefail
           tarball="vale_${VALE_VERSION}_Linux_64-bit.tar.gz"
-          curl -sSfL -o "/tmp/${tarball}" \
+          curl -sSfL --retry 5 --retry-all-errors --retry-delay 2 -o "/tmp/${tarball}" \
             "https://github.com/errata-ai/vale/releases/download/v${VALE_VERSION}/${tarball}"
           echo "${VALE_SHA256}  /tmp/${tarball}" | sha256sum --check --strict
           mkdir -p /tmp/vale-bin
