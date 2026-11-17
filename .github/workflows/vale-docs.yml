@@ -173,13 +173,23 @@ jobs:
           /tmp/vale-bin/vale --version
 
       # Downloads any Packages the chosen config declares into its StylesPath.
-      # A config with no Packages line is a no-op here.
+      # A config with no Packages line is a no-op here. With the central
+      # checkout, the central config's Packages are synced first, so an
+      # own-config caller can enable a single packaged rule (Google.OxfordComma)
+      # without declaring the package itself. Vale skips a rule it cannot
+      # resolve and exits 0, so a missing package would otherwise go unnoticed.
       - name: Sync Vale packages
         if: steps.changed-files.outputs.any_changed == 'true'
         shell: bash
         env:
           CONFIG: ${{ steps.mode.outputs.config }}
-        run: vale --no-global --config "$CONFIG" sync
+          CENTRAL_CHECKOUT: ${{ steps.mode.outputs.central_checkout }}
+        run: |
+          set -euo pipefail
+          if [ "$CENTRAL_CHECKOUT" = "true" ] && [ "$CONFIG" != ".tether-vale-source/.vale.ini" ]; then
+            vale --no-global --config .tether-vale-source/.vale.ini sync
+          fi
+          vale --no-global --config "$CONFIG" sync
 
       # Vale exits 0 when no error-level alert was found, 1 when at least one
       # was, and 2 when Vale itself could not run (bad config, broken rule).

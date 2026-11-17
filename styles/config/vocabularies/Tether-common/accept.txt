@@ -114,6 +114,7 @@ paragmore
 [pP]reprocess(?:es|ing|ed)?
 [pP]retrain(?:ing|ed)?
 [pP]rotobuf
+[pP]rovisioner[s]?(?:'s)?
 [pP]ubspec(?:'s)?
 [rR]eadback[s]?
 [rR]ebalanc(?:e|es|ing|ed)?(?:'s)?
