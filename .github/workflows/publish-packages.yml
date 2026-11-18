@@ -34,6 +34,7 @@ jobs:
             "packages/docs-seo-core"
             "packages/docs-seo-next"
             "packages/docs-seo-og"
+            "packages/docs-search"
           )
 
           for pkg_dir in "${PACKAGES[@]}"; do
