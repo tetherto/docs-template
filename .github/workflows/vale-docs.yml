@@ -179,9 +179,10 @@ jobs:
       # without declaring the package itself. Vale skips a rule it cannot
       # resolve and exits 0, so a missing package would otherwise go unnoticed.
       #
-      # A sync downloads from GitHub, so each one is retried with an increasing
-      # wait. It still fails the step after the last attempt: linting without
-      # the packages would pass with rules silently skipped.
+      # A sync downloads from GitHub, so each one is retried with a doubling
+      # wait, about two minutes in all, to match the Vale download's curl
+      # retries. It still fails the step after the last attempt: linting
+      # without the packages would pass with rules silently skipped.
       - name: Sync Vale packages
         if: steps.changed-files.outputs.any_changed == 'true'
         shell: bash
@@ -191,9 +192,9 @@ jobs:
         run: |
           set -euo pipefail
           vale_sync() {
-            for attempt in 1 2 3; do
+            for attempt in 1 2 3 4 5 6 7 8; do
               vale --no-global --config "$1" sync && return 0
-              [ "$attempt" -eq 3 ] || sleep $((attempt * 5))
+              [ "$attempt" -eq 8 ] || sleep $((2 ** (attempt - 1)))
             done
             return 1
           }
