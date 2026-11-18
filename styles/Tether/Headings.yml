@@ -14,8 +14,7 @@ exceptions:
   - Alchemy
   - Android
   - Antminer
-  - API
-  - APIs
+  - "APIs?"
   - App Node
   - AWS
   - Azure
@@ -52,7 +51,7 @@ exceptions:
   - Ethers.js
   - EthSigner
   - EVM
-  - FAQs
+  - "FAQs?"
   - FE
   - Flask
   - Foundry
@@ -72,8 +71,7 @@ exceptions:
   - JavaScript
   - JSON
   - JSX
-  - JWT
-  - JWTs
+  - "JWTs?"
   - Kernel
   - KMS
   - Kubernetes
@@ -95,8 +93,7 @@ exceptions:
   - MongoDB
   - MVP
   - Next.js
-  - NFT
-  - NFTs
+  - "NFTs?"
   - Node Fetch
   - Node.js
   - Ocean
@@ -134,9 +131,7 @@ exceptions:
   - SENECA
   - SEO
   - SES
-  - Snap
-  - Snaps
-  - Snap's
+  - "Snap(?:s|'s)?"
   - Solana Name Service
   - SpiderPool
   - Studio
@@ -152,7 +147,7 @@ exceptions:
   - UI
   - Umbrella Network
   - Unity
-  - URLs
+  - "URLs?"
   - USAGE.md
   - UX
   - Vale
@@ -162,11 +157,10 @@ exceptions:
   - Visual
   - VS
   - Wallet API
-  - WebSockets
+  - "WebSockets?"
   - Whatsminer
   - Windows
-  - Worker
-  - Workers
+  - "Workers?"
   - Yield Boost
   - YAML
   - YML
