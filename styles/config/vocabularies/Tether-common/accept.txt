@@ -11,6 +11,7 @@
 [aA]utogenerat(?:e|es|ing|ed)?
 [aA]utoinject(?:s|ing|ed)?(?:'s)?
 [Aa]valon
+[bB]aselin(?:e|es|ed|ing)?
 [Bb]itdeer
 [bB]orderless
 [bB]undler[s]?
@@ -93,6 +94,8 @@ mukama
 [nN]amespace(?:s|d)?
 [nN]avbar
 [nN]once[s]?
+npx
+[nN]ullable
 [nN]ullish
 [oO]nboard(?:s|ing|ed)?
 [oO]rderbook[s]?
@@ -111,7 +114,9 @@ paragmore
 [pP]reprocess(?:es|ing|ed)?
 [pP]retrain(?:ing|ed)?
 [pP]rotobuf
+[pP]rovisioner[s]?(?:'s)?
 [pP]ubspec(?:'s)?
+[rR]eadback[s]?
 [rR]ebalanc(?:e|es|ing|ed)?(?:'s)?
 [rR]ebas(?:e|es|ing|ed)?
 [rR]edelegat(?:e|es|ing|ed|ion|ions)?
@@ -155,18 +160,23 @@ tekwani
 [tT]erahash
 [tT]estnet[s]?
 [tT]hemeable
+[tT]oolkit(?:'s)?
 [tT]ooltip[s]?
 [tT]rie[s]?
 [tT]ruststore[s]?
 [tT]ruthy
 [uU][iI]s?(?:'s)?
+[uU]nary
 uncategorized
 [uU]nderflow[s]?
 [uU]nencrypt(?:ing|ed)?
+[uU]nfixable
 [uU]nichain
 [uU]niswap
 [uU]nlayered
 [uU]nmarshal(?:ing|ed)?
+[uU]nmergeable
+[uU]nscoped
 [uU]nstak(?:e|es|ing|ed)?(?:'s)?
 [uU]pstream[s]?
 [uU]serOp
@@ -346,6 +356,7 @@ Pyth
 QVAC
 Qwen
 Raft
+README(?:s|'s)?
 ReadTheDocs
 Redis
 Redocusaurus
@@ -380,6 +391,7 @@ Teku
 Telegraf
 Tellor
 Tether
+(?:docs@)?tether\.io
 Tezos
 thirdweb
 tmux

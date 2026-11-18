@@ -164,7 +164,7 @@ jobs:
         run: |
           set -euo pipefail
           tarball="vale_${VALE_VERSION}_Linux_64-bit.tar.gz"
-          curl -sSfL -o "/tmp/${tarball}" \
+          curl -sSfL --retry 7 --retry-all-errors -o "/tmp/${tarball}" \
             "https://github.com/errata-ai/vale/releases/download/v${VALE_VERSION}/${tarball}"
           echo "${VALE_SHA256}  /tmp/${tarball}" | sha256sum --check --strict
           mkdir -p /tmp/vale-bin
@@ -173,13 +173,35 @@ jobs:
           /tmp/vale-bin/vale --version
 
       # Downloads any Packages the chosen config declares into its StylesPath.
-      # A config with no Packages line is a no-op here.
+      # A config with no Packages line is a no-op here. With the central
+      # checkout, the central config's Packages are synced first, so an
+      # own-config caller can enable a single packaged rule (Google.OxfordComma)
+      # without declaring the package itself. Vale skips a rule it cannot
+      # resolve and exits 0, so a missing package would otherwise go unnoticed.
+      #
+      # A sync downloads from GitHub, so each one is retried with a doubling
+      # wait, about two minutes in all, to match the Vale download's curl
+      # retries. It still fails the step after the last attempt: linting
+      # without the packages would pass with rules silently skipped.
       - name: Sync Vale packages
         if: steps.changed-files.outputs.any_changed == 'true'
         shell: bash
         env:
           CONFIG: ${{ steps.mode.outputs.config }}
-        run: vale --no-global --config "$CONFIG" sync
+          CENTRAL_CHECKOUT: ${{ steps.mode.outputs.central_checkout }}
+        run: |
+          set -euo pipefail
+          vale_sync() {
+            for attempt in 1 2 3 4 5 6 7 8; do
+              vale --no-global --config "$1" sync && return 0
+              [ "$attempt" -eq 8 ] || sleep $((2 ** (attempt - 1)))
+            done
+            return 1
+          }
+          if [ "$CENTRAL_CHECKOUT" = "true" ] && [ "$CONFIG" != ".tether-vale-source/.vale.ini" ]; then
+            vale_sync .tether-vale-source/.vale.ini
+          fi
+          vale_sync "$CONFIG"
 
       # Vale exits 0 when no error-level alert was found, 1 when at least one
       # was, and 2 when Vale itself could not run (bad config, broken rule).

@@ -13,13 +13,14 @@ exceptions:
   - AI
   - Alchemy
   - Android
-  - API
-  - APIs
+  - Antminer
+  - "APIs?"
   - App Node
   - AWS
   - Azure
   - Besu
   - Binance Smart Chain
+  - Bitdeer
   - BLS
   - BNB Chain
   - BNB Smart Chain
@@ -41,6 +42,7 @@ exceptions:
   - EIP
   - Electron
   - Embedded Wallets
+  - EMCD
   - Emmet
   - EOA
   - ERC
@@ -49,9 +51,11 @@ exceptions:
   - Ethers.js
   - EthSigner
   - EVM
-  - FAQs
+  - "FAQs?"
   - FE
   - Flask
+  - Foundry
+  - Gateway
   - GFM
   - "[Gg]o"
   - GoQuorum
@@ -67,8 +71,8 @@ exceptions:
   - JavaScript
   - JSON
   - JSX
-  - JWT
-  - JWTs
+  - "JWTs?"
+  - Kernel
   - KMS
   - Kubernetes
   - KV
@@ -89,10 +93,10 @@ exceptions:
   - MongoDB
   - MVP
   - Next.js
-  - NFT
-  - NFTs
+  - "NFTs?"
   - Node Fetch
   - Node.js
+  - Ocean
   - OG
   - Open Graph
   - Orion
@@ -122,14 +126,14 @@ exceptions:
   - Schneider Electric
   - SCSS
   - SDK
+  - SealMiner
   - Secret
   - SENECA
   - SEO
   - SES
-  - Snap
-  - Snaps
-  - Snap's
+  - "Snap(?:s|'s)?"
   - Solana Name Service
+  - SpiderPool
   - Studio
   - Swagger
   - Takumi
@@ -143,7 +147,7 @@ exceptions:
   - UI
   - Umbrella Network
   - Unity
-  - URLs
+  - "URLs?"
   - USAGE.md
   - UX
   - Vale
@@ -153,9 +157,10 @@ exceptions:
   - Visual
   - VS
   - Wallet API
-  - WebSockets
+  - "WebSockets?"
   - Whatsminer
   - Windows
+  - "Workers?"
   - Yield Boost
   - YAML
   - YML

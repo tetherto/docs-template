@@ -240,7 +240,9 @@ demoable
 deps
 descriptor
 descriptor's
+destructure
 destructured
+destructures
 destructuring
 devcontainers
 devs
