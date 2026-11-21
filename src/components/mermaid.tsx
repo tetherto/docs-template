@@ -41,6 +41,9 @@ function MermaidContent({ chart }: { chart: string }) {
     fontFamily: 'inherit',
     themeCSS: 'margin: 1.5rem auto 0;',
     theme: resolvedTheme === 'dark' ? 'dark' : 'default',
+    // Mermaid 12 switched defaults; keep the v11 layout and styling.
+    layout: 'dagre',
+    look: 'classic',
   });
 
   const { svg, bindFunctions } = use(

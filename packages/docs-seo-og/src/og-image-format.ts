@@ -8,15 +8,15 @@ export function ogImageFileName(format: OgImageFormat = 'webp'): string {
 /**
  * Resolves the effective OG image format from a Takumi `format` option,
  * defaulting to `webp`. Rejects `raw` (pixel-buffer output has no valid
- * static-file/URL extension for an OG image).
+ * static-file/URL extension for an OG image) and `ico` (not an OG image format).
  */
 export function resolveOgImageFormat(
-  requested: 'webp' | 'png' | 'jpeg' | 'raw' | undefined,
+  requested: 'webp' | 'png' | 'jpeg' | 'ico' | 'raw' | undefined,
 ): OgImageFormat {
   if (requested === undefined) return 'webp';
-  if (requested === 'raw') {
+  if (requested === 'raw' || requested === 'ico') {
     throw new Error(
-      'OG images cannot use format "raw"; use "webp", "png", or "jpeg".',
+      `OG images cannot use format "${requested}"; use "webp", "png", or "jpeg".`,
     );
   }
   return requested;

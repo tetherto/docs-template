@@ -95,9 +95,9 @@ async function renderOne(
   const response = new ImageResponse(element, {
     width: 1200,
     height: 630,
-    format: 'webp',
     ...imageResponseOptions,
-  });
+    format: effectiveFormat,
+  } as ImageResponseOptions);
 
   await response.ready;
   const buf = await response.arrayBuffer();
