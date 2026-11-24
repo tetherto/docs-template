@@ -502,6 +502,7 @@ jodyheavener
 joshcena
 jq
 jscodeshift
+json
 jsonrpc
 jssdk
 jwt
