@@ -258,6 +258,7 @@ Gio
 Gitcoin
 GitHub
 gitignored
+[Gg]itleaks
 Gitter
 gnark
 Goldsky
@@ -338,6 +339,7 @@ ORKs
 P-Chain
 PADO
 paramStructure
+PDUs?
 Pectra
 Pegasys
 Photoshop

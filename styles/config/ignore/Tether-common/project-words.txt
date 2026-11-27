@@ -502,6 +502,7 @@ jodyheavener
 joshcena
 jq
 jscodeshift
+json
 jsonrpc
 jssdk
 jwt
@@ -1249,3 +1250,4 @@ zkurvpu
 zonic
 zoomable
 zpao
+zsh
