@@ -7,7 +7,9 @@
     "packages/*"
   ],
   "scripts": {
-    "prebuild": "tsx scripts/generate-takumi-og.mts",
+    "build:packages": "npm run build --workspace @tetherto/docs-search",
+    "predev": "npm run build:packages",
+    "prebuild": "npm run build:packages && tsx scripts/generate-takumi-og.mts",
     "build": "next build && npx @vahor/next-broken-links",
     "build:static": "next build && npx @vahor/next-broken-links",
     "build:og": "tsx scripts/generate-takumi-og.mts",
@@ -22,6 +24,7 @@
     "@tetherto/docs-seo-next": "1.0.0",
     "@tetherto/docs-seo-og": "1.0.0",
     "@tetherto/docs-seo-schema": "1.0.0",
+    "@tetherto/docs-search": "0.1.0",
     "@ai-sdk/openai-compatible": "^3.0.29",
     "@ai-sdk/react": "^4.0.88",
     "@icons-pack/react-simple-icons": "^13.8.0",

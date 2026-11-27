@@ -1,0 +1,9 @@
+/*
+ * Tells Tailwind v4 to scan this package's components for classes, so the dialog
+ * and the install button are styled. Import it after Tailwind, in the site's
+ * global stylesheet:
+ *
+ *   @import 'tailwindcss';
+ *   @import '@tetherto/docs-search/tailwind.css';
+ */
+@source "./dist";
